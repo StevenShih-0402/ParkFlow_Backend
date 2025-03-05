@@ -9,7 +9,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ErrorResponse<T> {
+public class ErrorResponse {
     private String message;
-    private T data;
+    private String data;
 }

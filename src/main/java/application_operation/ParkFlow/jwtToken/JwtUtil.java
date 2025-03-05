@@ -1,5 +1,6 @@
 package application_operation.ParkFlow.jwtToken;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -58,6 +59,14 @@ public class JwtUtil {
         } catch (JwtException | IllegalArgumentException e) {
             return false;
         }
+    }
+
+    public Claims getClaimsFromToken(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(secretKey) // 使用與生成 Token 相同的密鑰
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
     }
 
     // 將 Token 加入黑名單

@@ -31,9 +31,29 @@ dependencies {
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 
 	compileOnly 'org.projectlombok:lombok:1.18.30'
 	annotationProcessor 'org.projectlombok:lombok:1.18.30'
+<<<<<<< HEAD
+=======
+
+	implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+
+	//Swagger Api
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0'
+
+	//Jwt Token
+	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
+	//oracle
+	runtimeOnly 'com.oracle.database.jdbc:ojdbc11'
+
+	//Security
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+>>>>>>> 3918438 (feature/Create-ParkingRequest)
 }
 
 tasks.named('test') {
