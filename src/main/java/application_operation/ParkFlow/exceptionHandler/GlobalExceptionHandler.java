@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -48,7 +47,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> exception(Exception ex) {
         return ResponseEntity.status(HttpStatus.OK)
->>>>>>> 3918438 (feature/Create-ParkingRequest)
                 .body(ErrorResponse
                         .builder()
                         .message("Error")
