@@ -6,10 +6,11 @@ import application_operation.ParkFlow.exception.JwtTokenException;
 import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-@RestControllerAdvice
+@ControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(HandleException.class)
@@ -24,7 +25,7 @@ public class GlobalExceptionHandler {
                 );
     }
 
-    @ExceptionHandler(Exception.class)  // 捕獲所有未處理的異常
+    @ExceptionHandler(JwtTokenException.class)  // 捕獲所有未處理的異常
     public ResponseEntity<ErrorResponse<Object>> handleJwtTokenException(JwtTokenException ex) {
         return ResponseEntity
                 .status(HttpStatus.OK)

@@ -1,6 +1,7 @@
 package application_operation.ParkFlow.dao.users;
 
 import application_operation.ParkFlow.dto.UserCreateDto;
+import application_operation.ParkFlow.dto.UserCreateOutputDto;
 import application_operation.ParkFlow.entity.UserEntity;
 import application_operation.ParkFlow.repository.UsersRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,16 +18,21 @@ public class UserDao {
         return usersRepository.existsByEmail(email);
     }
 
-    public Boolean existCellphone(String cellphone){
-        return usersRepository.existsByCellphone(cellphone);
-    }
+//    public Boolean existCellphone(String cellphone){
+//        return usersRepository.existsByCellphone(cellphone);
+//    }
 
     @Transactional
-    public UserCreateDto saveUser(UserCreateDto userCreateDto){
+    public UserEntity saveUser(UserCreateDto userCreateDto){
         UserEntity userEntity = convertToEntity(userCreateDto);
         UserEntity saveEntity = usersRepository.save(userEntity);
 
-        return convertToDto(saveEntity);
+        saveEntity.setCellphone(encodeCellphone(saveEntity.getCellphone()));
+        saveEntity.setCarNumber(encodeCarNumber(saveEntity.getCarNumber()));
+
+        return saveEntity;
+
+//        return convertToDto(saveEntity);
     }
 
     public UserEntity convertToEntity(UserCreateDto userCreateDto){
@@ -42,27 +48,23 @@ public class UserDao {
         return userEntity;
     }
 
-    public UserCreateDto convertToDto(UserEntity userEntity){
-        UserCreateDto userCreateDto = new UserCreateDto();
-
-        userCreateDto.setChineseName(userEntity.getChineseName());
-        userCreateDto.setEnglishName(userEntity.getEnglishName());
-        userCreateDto.setEmail(userEntity.getEmail());
-        userCreateDto.setCellphone(encodeCellphone(userEntity.getCellphone()));
-        userCreateDto.setCarNumber(encodeCarNumber(userEntity.getCarNumber()));
-        userCreateDto.setCarType(userEntity.getCarType());
-
-        return userCreateDto;
-    }
+//    public UserCreateOutputDto convertToDto(UserEntity userEntity){
+//        UserCreateOutputDto userCreateOutputDto = new UserCreateOutputDto();
+//
+//        userCreateOutputDto.setId(userEntity.getId());
+//        userCreateOutputDto.setChineseName(userEntity.getChineseName());
+//        userCreateOutputDto.setEnglishName(userEntity.getEnglishName());
+//        userCreateOutputDto.setEmail(userEntity.getEmail());
+//        userCreateOutputDto.setCellphone(encodeCellphone(userEntity.getCellphone()));
+//        userCreateOutputDto.setCarNumber(encodeCarNumber(userEntity.getCarNumber()));
+//        userCreateOutputDto.setCarType(userEntity.getCarType());
+//
+//        return userCreateOutputDto;
+//    }
 
     public String encodeCarNumber(String carNumber){
-        String firstChar = "";
-        String lastChar = "";
-
-        if (carNumber != null && carNumber.length() > 2) {
-            firstChar = carNumber.substring(0, 1); // 取第一個字
-            lastChar = carNumber.substring(carNumber.length() - 1); // 取最後一個字
-        }
+        String firstChar = carNumber.substring(0, 1); // 取第一個字
+        String lastChar = carNumber.substring(carNumber.length() - 1); // 取最後一個字
         return firstChar + "****" + lastChar; // 中間四個字為 "****"
     }
 

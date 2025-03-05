@@ -18,10 +18,16 @@ public class JwtUtil {
     private static final long EXPIRATION_TIME = 28800000; // 8 小時
 
     // 生成 Token
-    public String generateToken(String username, Integer userId) {
+    public String generateToken(Integer userId, String chineseName, String englishName, String email, String cellphone, String carNumber, String carType, String roleName) {
         return Jwts.builder()
-                .setSubject(username)
+                .claim("chineseName", chineseName)
+                .claim("englishName", englishName)
+                .claim("email", email)
+                .claim("cellphone", cellphone)
+                .claim("carNumber", carNumber)
+                .claim("carType", carType)
                 .claim("userId", userId)
+                .claim("roleName", roleName)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .signWith(secretKey)
