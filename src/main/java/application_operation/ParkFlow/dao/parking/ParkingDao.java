@@ -30,9 +30,11 @@ public class ParkingDao {
         entity.setApplicantId(usersBaseDto.getUserId());
         entity.setApplicationTime(LocalDateTime.now());
 
-        parkingRequestRepository.save(entity);
+        ParkingRequestEntity parkingRequest = parkingRequestRepository.save(entity);
+        Integer id = parkingRequest.getId();
 
         return ParkingRequestDto.builder()
+                .Id(id)
                 .weekStartDate(parkingRequestCreateDto.getWeekStartDate())
                 .cellPhone(parkingRequestCreateDto.getCellPhone())
                 .carNumber(parkingRequestCreateDto.getCarNumber())

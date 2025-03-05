@@ -23,7 +23,7 @@ public class ParkingController {
     public ResponseEntity<SuccessResponse<Object>> create(@Valid @RequestBody ParkinRequestCreateRq parkinRequestCreateRq) {
         ParkingRequestDto parkingRequestDto = parkingService.create(parkinRequestCreateRq);
 
-        return ResponseEntity.ok(SuccessResponse.builder().message("Success")
+        return ResponseEntity.ok(SuccessResponse.builder()
                 .data(parkingRequestDto)
                 .build());
     }
