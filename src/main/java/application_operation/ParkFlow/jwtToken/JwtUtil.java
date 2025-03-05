@@ -1,6 +1,5 @@
-package application_operation.ParkFlow.Component;
+package application_operation.ParkFlow.jwtToken;
 
-import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
