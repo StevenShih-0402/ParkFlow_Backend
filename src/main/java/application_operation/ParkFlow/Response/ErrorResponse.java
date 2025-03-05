@@ -1,4 +1,15 @@
 package application_operation.ParkFlow.Response;
 
-public class ErrorResponse {
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
+
+@Data
+@SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
+public class ErrorResponse<T> {
+    private String message;
+    private T data;
 }
