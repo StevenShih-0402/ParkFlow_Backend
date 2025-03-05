@@ -1,4 +1,4 @@
-package application_operation.ParkFlow.Controller.parking;
+package application_operation.ParkFlow.controller.parking;
 
 public class ParkingController {
 }
