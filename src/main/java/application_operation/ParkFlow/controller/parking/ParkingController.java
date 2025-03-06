@@ -3,7 +3,6 @@ package application_operation.ParkFlow.controller.parking;
 import application_operation.ParkFlow.Response.SuccessResponse;
 import application_operation.ParkFlow.controller.parking.payload.ParkinRequestCreateRq;
 import application_operation.ParkFlow.controller.parking.payload.ParkingRequestUpdateRq;
-import application_operation.ParkFlow.dto.UsersBaseDto;
 import application_operation.ParkFlow.dto.parking.create.ParkingRequestDto;
 import application_operation.ParkFlow.service.parking.ParkingService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -30,7 +29,7 @@ public class ParkingController {
     }
 
     @Operation(summary = "審核停車位" ,description = "審核停車位")
-    @PostMapping(value = "create")
+    @PutMapping(value = "update")
     public ResponseEntity<SuccessResponse<Object>> update(@Valid @RequestBody ParkingRequestUpdateRq parkingRequestUpdateRq) {
         parkingService.update(parkingRequestUpdateRq);
 

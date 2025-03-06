@@ -4,14 +4,18 @@ import application_operation.ParkFlow.dto.UsersBaseDto;
 import application_operation.ParkFlow.dto.parking.create.ParkingRequestCreateDto;
 import application_operation.ParkFlow.dto.parking.create.ParkingRequestDto;
 import application_operation.ParkFlow.dto.parking.update.ParkingRequestUpdateDto;
+import application_operation.ParkFlow.entity.ParkingQuotaEntity;
 import application_operation.ParkFlow.entity.ParkingRequestEntity;
 import application_operation.ParkFlow.enums.ParkingRequestEnum;
+import application_operation.ParkFlow.repository.ParkingQuotaRepository;
 import application_operation.ParkFlow.repository.ParkingRequestRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 
 @Component
@@ -20,6 +24,31 @@ import java.time.LocalDateTime;
 public class ParkingDao {
 
     private final ParkingRequestRepository parkingRequestRepository;
+    private final ParkingQuotaRepository pargetTotalSlotsRepository;
+
+    public Boolean findParkingRequestByApplicantId(
+            ParkingRequestCreateDto parkingRequestCreateDto,
+            UsersBaseDto usersBaseDto
+    ) {
+
+        List<ParkingRequestEntity> parkingRequestEntities = parkingRequestRepository.queryParkingRequestByApplicantId(
+                usersBaseDto.getUserId(),
+                parkingRequestCreateDto.getWeekStartDate()
+        );
+
+        return parkingRequestEntities.isEmpty();
+    }
+
+    public Boolean findParkingRequestCheckQuota(ParkingRequestCreateDto parkingRequestCreateDto) {
+        if(ObjectUtils.isEmpty(parkingRequestRepository)) {
+            return false;
+        }
+
+        List<ParkingRequestEntity> currentRequest = parkingRequestRepository.getCurrentRequest(parkingRequestCreateDto.getWeekStartDate());
+        List<ParkingQuotaEntity> totalSlots = pargetTotalSlotsRepository.getTotalSlots(parkingRequestCreateDto.getWeekStartDate());
+
+        return currentRequest.size() < totalSlots.get(0).getTotalSlots();
+    }
 
     public ParkingRequestDto saveParkingRequest(ParkingRequestCreateDto parkingRequestCreateDto, UsersBaseDto usersBaseDto) {
         ParkingRequestEntity entity = new ParkingRequestEntity();
@@ -43,7 +72,14 @@ public class ParkingDao {
                 .build();
     }
 
-    public void updateParkingRequest(ParkingRequestUpdateDto parkingRequestUpdateDto) {
+    public void updateParkingRequest(ParkingRequestUpdateDto parkingRequestUpdateDto, UsersBaseDto usersBaseDto) {
+        ParkingRequestEntity entity = new ParkingRequestEntity();
+        entity.setId(parkingRequestUpdateDto.getId());
+        entity.setParkingSlotNumber(parkingRequestUpdateDto.getParkingSlotNumber());
+        entity.setStatus(parkingRequestUpdateDto.getStatus());
+        entity.setReviewId(usersBaseDto.getUserId());
+        entity.setReviewTime(LocalDateTime.now());
 
+        parkingRequestRepository.save(entity);
     }
 }
