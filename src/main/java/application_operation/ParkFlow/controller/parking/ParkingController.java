@@ -4,6 +4,7 @@ import application_operation.ParkFlow.Response.SuccessResponse;
 import application_operation.ParkFlow.controller.parking.payload.ParkinRequestCreateRq;
 import application_operation.ParkFlow.controller.parking.payload.ParkingRequestUpdateRq;
 import application_operation.ParkFlow.dto.parking.create.ParkingRequestDto;
+import application_operation.ParkFlow.dto.parking.update.UpdateParkingRequestDto;
 import application_operation.ParkFlow.service.parking.ParkingService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -31,10 +32,10 @@ public class ParkingController {
     @Operation(summary = "審核停車位" ,description = "審核停車位")
     @PutMapping(value = "update")
     public ResponseEntity<SuccessResponse<Object>> update(@Valid @RequestBody ParkingRequestUpdateRq parkingRequestUpdateRq) {
-        parkingService.update(parkingRequestUpdateRq);
+        UpdateParkingRequestDto updateParkingRequestDto = parkingService.update(parkingRequestUpdateRq);
 
         return ResponseEntity.ok(SuccessResponse.builder()
-                .data("")
+                .data(updateParkingRequestDto)
                 .build());
     }
 }

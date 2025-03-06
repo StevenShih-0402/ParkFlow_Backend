@@ -4,6 +4,7 @@ import application_operation.ParkFlow.dto.UsersBaseDto;
 import application_operation.ParkFlow.dto.parking.create.ParkingRequestCreateDto;
 import application_operation.ParkFlow.dto.parking.create.ParkingRequestDto;
 import application_operation.ParkFlow.dto.parking.update.ParkingRequestUpdateDto;
+import application_operation.ParkFlow.dto.parking.update.UpdateParkingRequestDto;
 import application_operation.ParkFlow.entity.ParkingQuotaEntity;
 import application_operation.ParkFlow.entity.ParkingRequestEntity;
 import application_operation.ParkFlow.enums.ParkingRequestEnum;
@@ -25,6 +26,11 @@ public class ParkingDao {
 
     private final ParkingRequestRepository parkingRequestRepository;
     private final ParkingQuotaRepository pargetTotalSlotsRepository;
+
+    public List<ParkingRequestEntity> findParkingRequestById (ParkingRequestUpdateDto parkingRequestUpdateDto) {
+
+        return parkingRequestRepository.queryParkingRequestById(parkingRequestUpdateDto.getId());
+    }
 
     public Boolean findParkingRequestByApplicantId(
             ParkingRequestCreateDto parkingRequestCreateDto,
@@ -72,14 +78,22 @@ public class ParkingDao {
                 .build();
     }
 
-    public void updateParkingRequest(ParkingRequestUpdateDto parkingRequestUpdateDto, UsersBaseDto usersBaseDto) {
-        ParkingRequestEntity entity = new ParkingRequestEntity();
-        entity.setId(parkingRequestUpdateDto.getId());
-        entity.setParkingSlotNumber(parkingRequestUpdateDto.getParkingSlotNumber());
-        entity.setStatus(parkingRequestUpdateDto.getStatus());
-        entity.setReviewId(usersBaseDto.getUserId());
-        entity.setReviewTime(LocalDateTime.now());
+    public UpdateParkingRequestDto updateParkingRequest(
+            ParkingRequestEntity parkingRequestEntity,
+            ParkingRequestUpdateDto parkingRequestUpdateDto,
+            UsersBaseDto usersBaseDto
+    ) {
+        parkingRequestEntity.setParkingSlotNumber(parkingRequestUpdateDto.getParkingSlotNumber());
+        parkingRequestEntity.setStatus(parkingRequestUpdateDto.getStatus());
+        parkingRequestEntity.setReviewId(usersBaseDto.getUserId());
+        parkingRequestEntity.setReviewTime(LocalDateTime.now());
 
-        parkingRequestRepository.save(entity);
+        parkingRequestRepository.save(parkingRequestEntity);
+
+        return UpdateParkingRequestDto.builder()
+                .id(parkingRequestUpdateDto.getId())
+                .parkingSlotNumber(parkingRequestUpdateDto.getParkingSlotNumber())
+                .status(parkingRequestUpdateDto.getStatus())
+                .build();
     }
 }

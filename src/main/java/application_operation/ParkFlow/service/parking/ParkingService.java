@@ -6,12 +6,16 @@ import application_operation.ParkFlow.dto.UsersBaseDto;
 import application_operation.ParkFlow.dto.parking.create.ParkingRequestCreateDto;
 import application_operation.ParkFlow.dto.parking.create.ParkingRequestDto;
 import application_operation.ParkFlow.dto.parking.update.ParkingRequestUpdateDto;
+import application_operation.ParkFlow.dto.parking.update.UpdateParkingRequestDto;
+import application_operation.ParkFlow.entity.ParkingRequestEntity;
 import application_operation.ParkFlow.enums.RoleNameEnum;
 import application_operation.ParkFlow.exception.HandleException;
 import application_operation.ParkFlow.jwtToken.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import application_operation.ParkFlow.dao.parking.ParkingDao;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @Service
@@ -49,7 +53,7 @@ public class ParkingService {
         return parkingDao.saveParkingRequest(parkingRequestCreateDto, usersBaseDto);
     }
 
-    public void update(ParkingRequestUpdateRq parkingRequestUpdateRq) {
+    public UpdateParkingRequestDto update(ParkingRequestUpdateRq parkingRequestUpdateRq) {
 
         jwtUtil.validateToken();
 
@@ -66,7 +70,9 @@ public class ParkingService {
                 .parkingSlotNumber(parkingRequestUpdateRq.getParkingSlotNumber())
                 .build();
 
-        parkingDao.updateParkingRequest(parkingRequestUpdateDto, usersBaseDto);
+        List<ParkingRequestEntity> parkingRequestEntities = parkingDao.findParkingRequestById(parkingRequestUpdateDto);
+
+        return parkingDao.updateParkingRequest(parkingRequestEntities.get(0), parkingRequestUpdateDto, usersBaseDto);
     }
 
 }

@@ -3,6 +3,7 @@ package application_operation.ParkFlow.repository;
 import application_operation.ParkFlow.entity.ParkingRequestEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.relational.core.sql.In;
 import org.springframework.data.repository.query.Param;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Repository;
@@ -12,6 +13,18 @@ import java.util.List;
 
 @Repository
 public interface ParkingRequestRepository extends JpaRepository<ParkingRequestEntity, Integer> {
+
+    @Query(
+            value = """
+                    SELECT
+                        *
+                    FROM
+                        PARKING_REQUEST
+                    WHERE
+                        ID = :id
+                    """, nativeQuery = true
+    )
+    List<ParkingRequestEntity> queryParkingRequestById(@Param("id") Integer id);
 
     @Query(
             value = """
