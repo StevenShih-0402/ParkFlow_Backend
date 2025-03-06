@@ -25,7 +25,7 @@ public class JwtUtil {
     private static final long EXPIRATION_TIME = 28800000; // 8 小時
 
     // 生成 Token
-    public String generateToken(Integer userId, String chineseName, String englishName, String email, String cellphone, String carNumber, String carType, RoleNameEnum roleName) {
+    public String generateToken(Integer userId, String chineseName, String englishName, String email, String cellphone, String carNumber, String carType, String roleName) {
         return Jwts.builder()
                 .claim("chineseName", chineseName)
                 .claim("englishName", englishName)

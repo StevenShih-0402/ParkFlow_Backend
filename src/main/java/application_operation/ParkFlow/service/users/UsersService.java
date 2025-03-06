@@ -1,14 +1,19 @@
 package application_operation.ParkFlow.service.users;
 
+import application_operation.ParkFlow.Response.SuccessResponse;
 import application_operation.ParkFlow.controller.users.payload.UserCreateRq;
+import application_operation.ParkFlow.controller.users.payload.UserLoginRq;
 import application_operation.ParkFlow.dao.users.UserDao;
 import application_operation.ParkFlow.dto.user.create.UserCreateDto;
+import application_operation.ParkFlow.dto.user.create.UserLoginDto;
 import application_operation.ParkFlow.entity.UserEntity;
+import application_operation.ParkFlow.enums.ResponseCodeEnum;
 import application_operation.ParkFlow.enums.RoleNameEnum;
 import application_operation.ParkFlow.exception.HandleException;
 import application_operation.ParkFlow.jwtToken.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -53,7 +58,41 @@ public class UsersService {
             savedUser.getCellphone(),
             savedUser.getCarNumber(),
             savedUser.getCarType(),
-            RoleNameEnum.USER
+            RoleNameEnum.getRoleNameById(savedUser.getRoleId())
         );
+    }
+
+
+
+    public SuccessResponse<Object> login(UserLoginRq userLoginRq){
+
+        UserLoginDto userLoginDto = new UserLoginDto();
+        BeanUtils.copyProperties(userLoginRq, userLoginDto);
+
+        // Email 不存在的話，回傳 Success 0001
+        if(!userDao.existEmail(userLoginDto.getEmail())){
+            return SuccessResponse.builder()
+                    .code(ResponseCodeEnum.REGISTER_REQ.getResponseCode())// 0001
+                    .data("找不到對應的使用者，請註冊新用戶。")
+                    .build();
+        }
+
+        // 存在的話，用 Email 找出用戶資料並包裝成 Jwt
+        UserEntity userData = userDao.queryUserByEmail(userLoginDto);
+
+        String token = jwtUtils.generateToken(
+                userData.getId(),
+                userData.getChineseName(),
+                userData.getEnglishName(),
+                userData.getEmail(),
+                userData.getCellphone(),
+                userData.getCarNumber(),
+                userData.getCarType(),
+                RoleNameEnum.getRoleNameById(userData.getRoleId())
+        );
+
+        return SuccessResponse.builder()
+                .data(token)
+                .build();
     }
 }

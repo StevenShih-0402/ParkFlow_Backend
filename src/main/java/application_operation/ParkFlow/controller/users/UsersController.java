@@ -2,6 +2,7 @@ package application_operation.ParkFlow.controller.users;
 
 import application_operation.ParkFlow.Response.SuccessResponse;
 import application_operation.ParkFlow.controller.users.payload.UserCreateRq;
+import application_operation.ParkFlow.controller.users.payload.UserLoginRq;
 import application_operation.ParkFlow.service.users.UsersService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -28,5 +29,11 @@ public class UsersController {
         return ResponseEntity.ok(SuccessResponse.builder()
                 .data(token)
                 .build());
+    }
+
+    @PostMapping("/login")
+    @Operation(summary = "使用者登入驗證", description = "使用者登入驗證")
+    public ResponseEntity<SuccessResponse<Object>> login(@Valid @RequestBody UserLoginRq userLoginRq){
+        return ResponseEntity.ok(usersService.login(userLoginRq));  // Jwt Token or 需要註冊
     }
 }
