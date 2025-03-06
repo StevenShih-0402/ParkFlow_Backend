@@ -3,6 +3,7 @@ package application_operation.ParkFlow.dao.parking;
 import application_operation.ParkFlow.dto.UsersBaseDto;
 import application_operation.ParkFlow.dto.parking.create.ParkingRequestCreateDto;
 import application_operation.ParkFlow.dto.parking.create.ParkingRequestDto;
+import application_operation.ParkFlow.dto.parking.update.ParkingRequestUpdateDto;
 import application_operation.ParkFlow.entity.ParkingRequestEntity;
 import application_operation.ParkFlow.enums.ParkingRequestEnum;
 import application_operation.ParkFlow.repository.ParkingRequestRepository;
@@ -40,5 +41,9 @@ public class ParkingDao {
                 .carNumber(parkingRequestCreateDto.getCarNumber())
                 .carType(parkingRequestCreateDto.getCarType())
                 .build();
+    }
+
+    public void updateParkingRequest(ParkingRequestUpdateDto parkingRequestUpdateDto) {
+
     }
 }
