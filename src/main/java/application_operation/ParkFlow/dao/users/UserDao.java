@@ -1,6 +1,7 @@
 package application_operation.ParkFlow.dao.users;
 
 import application_operation.ParkFlow.dto.user.create.UserCreateDto;
+import application_operation.ParkFlow.dto.user.create.UserLoginDto;
 import application_operation.ParkFlow.entity.UserEntity;
 import application_operation.ParkFlow.repository.UsersRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,10 @@ public class UserDao {
     public UserEntity saveUser(UserCreateDto userCreateDto){
         UserEntity userEntity = convertToEntity(userCreateDto);
         return usersRepository.save(userEntity);
+    }
+
+    public UserEntity queryUserByEmail(UserLoginDto userLoginDto){
+        return usersRepository.findByEmail(userLoginDto.getEmail());
     }
 
     public UserEntity convertToEntity(UserCreateDto userCreateDto){
