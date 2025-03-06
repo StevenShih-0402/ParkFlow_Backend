@@ -1,10 +1,10 @@
 package application_operation.ParkFlow.service.users;
 
-import application_operation.ParkFlow.controller.users.rq.UserCreateRq;
+import application_operation.ParkFlow.controller.users.payload.UserCreateRq;
 import application_operation.ParkFlow.dao.users.UserDao;
-import application_operation.ParkFlow.dto.UserCreateDto;
-import application_operation.ParkFlow.dto.UserCreateOutputDto;
+import application_operation.ParkFlow.dto.user.create.UserCreateDto;
 import application_operation.ParkFlow.entity.UserEntity;
+import application_operation.ParkFlow.enums.RoleNameEnum;
 import application_operation.ParkFlow.exception.HandleException;
 import application_operation.ParkFlow.jwtToken.JwtUtil;
 import lombok.RequiredArgsConstructor;
@@ -33,11 +33,6 @@ public class UsersService {
             throw new HandleException("只能輸入英文與連接線。");
         }
 
-        // Email 格式驗證
-//        if(!userCreateDto.getEmail().matches("^[^@]+@[^@]+$")){
-//            throw new IllegalArgumentException("格式錯誤，@ 的左邊與右邊必須有值。");
-//        }
-
         // Email 重複驗證
         if(userDao.existEmail(userCreateDto.getEmail())){
             throw new HandleException("已經有重複的 Email。");
@@ -47,11 +42,6 @@ public class UsersService {
         if(!userCreateDto.getCellphone().matches("^\\d{10}$")){
             throw new HandleException("格式錯誤，電話號碼必須為10個數字。");
         }
-
-        // 電話號碼重複驗證
-//        if(userDao.existCellphone(userCreateDto.getCellphone())){
-//            throw new IllegalArgumentException("已經有重複的電話號碼。");
-//        }
 
         UserEntity savedUser = userDao.saveUser(userCreateDto);
 
@@ -63,7 +53,7 @@ public class UsersService {
             savedUser.getCellphone(),
             savedUser.getCarNumber(),
             savedUser.getCarType(),
-            "USER"
+            RoleNameEnum.USER
         );
     }
 }

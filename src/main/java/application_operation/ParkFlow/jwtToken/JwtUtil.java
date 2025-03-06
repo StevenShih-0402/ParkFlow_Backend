@@ -1,6 +1,7 @@
 package application_operation.ParkFlow.jwtToken;
 
 import application_operation.ParkFlow.dto.UsersBaseDto;
+import application_operation.ParkFlow.enums.RoleNameEnum;
 import application_operation.ParkFlow.exception.JwtTokenException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
@@ -24,7 +25,7 @@ public class JwtUtil {
     private static final long EXPIRATION_TIME = 28800000; // 8 小時
 
     // 生成 Token
-    public String generateToken(Integer userId, String chineseName, String englishName, String email, String cellphone, String carNumber, String carType, String roleName) {
+    public String generateToken(Integer userId, String chineseName, String englishName, String email, String cellphone, String carNumber, String carType, RoleNameEnum roleName) {
         return Jwts.builder()
                 .claim("chineseName", chineseName)
                 .claim("englishName", englishName)

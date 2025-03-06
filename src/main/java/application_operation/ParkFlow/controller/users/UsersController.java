@@ -1,11 +1,12 @@
 package application_operation.ParkFlow.controller.users;
 
-import application_operation.ParkFlow.controller.users.rq.UserCreateRq;
-import application_operation.ParkFlow.dto.UserCreateOutputDto;
+import application_operation.ParkFlow.Response.SuccessResponse;
+import application_operation.ParkFlow.controller.users.payload.UserCreateRq;
 import application_operation.ParkFlow.service.users.UsersService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,7 +23,10 @@ public class UsersController {
 
     @PostMapping("/create")
     @Operation(summary = "註冊使用者", description = "註冊使用者")
-    String create(@Valid @RequestBody UserCreateRq userCreateRq){
-        return usersService.create(userCreateRq);   // Jwt Token
+    public ResponseEntity<SuccessResponse<Object>> create(@Valid @RequestBody UserCreateRq userCreateRq){
+        String token =  usersService.create(userCreateRq);   // Jwt Token
+        return ResponseEntity.ok(SuccessResponse.builder()
+                .data(token)
+                .build());
     }
 }

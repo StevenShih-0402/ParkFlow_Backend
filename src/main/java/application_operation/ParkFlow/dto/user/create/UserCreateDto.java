@@ -1,6 +1,5 @@
-package application_operation.ParkFlow.dto;
+package application_operation.ParkFlow.dto.user.create;
 
-import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
