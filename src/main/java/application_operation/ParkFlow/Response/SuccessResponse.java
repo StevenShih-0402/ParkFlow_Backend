@@ -1,6 +1,7 @@
 package application_operation.ParkFlow.Response;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -10,6 +11,11 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SuccessResponse<T> {
-    private String message;
+    @Builder.Default
+    private String code = "0000";
+
+    @Builder.Default
+    private String message = "Success";
+
     private T data;
 }

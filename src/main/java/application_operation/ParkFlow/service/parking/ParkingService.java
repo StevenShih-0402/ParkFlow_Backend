@@ -4,22 +4,28 @@ import application_operation.ParkFlow.controller.parking.payload.ParkinRequestCr
 import application_operation.ParkFlow.dto.UsersBaseDto;
 import application_operation.ParkFlow.dto.parking.create.ParkingRequestCreateDto;
 import application_operation.ParkFlow.dto.parking.create.ParkingRequestDto;
-import application_operation.ParkFlow.service.BaseService;
+import application_operation.ParkFlow.exception.HandleException;
+import application_operation.ParkFlow.jwtToken.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import application_operation.ParkFlow.dao.parking.ParkingDao;
 
 @RequiredArgsConstructor
 @Service
-public class ParkingService extends BaseService {
+public class ParkingService {
 
     private final ParkingDao parkingDao;
+    private final JwtUtil jwtUtil;
 
     public ParkingRequestDto create (ParkinRequestCreateRq parkinRequestCreateRq) {
 
-        validateToken();
+        jwtUtil.validateToken();
 
-        UsersBaseDto usersBaseDto = getUserBase();
+        if(!parkinRequestCreateRq.getCellPhone().matches("^\\d{10}$")){
+            throw new HandleException("格式錯誤，電話號碼必須為10個數字。");
+        }
+
+        UsersBaseDto usersBaseDto = jwtUtil.getUserBase();
 
         ParkingRequestCreateDto parkingRequestCreateDto = ParkingRequestCreateDto.builder()
                 .weekStartDate(parkinRequestCreateRq.getWeekStartDate())

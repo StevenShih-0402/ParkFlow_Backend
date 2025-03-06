@@ -1,11 +1,16 @@
 package application_operation.ParkFlow.jwtToken;
 
+import application_operation.ParkFlow.dto.UsersBaseDto;
+import application_operation.ParkFlow.exception.JwtTokenException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.security.Key;
 import java.util.Date;
@@ -44,20 +49,28 @@ public class JwtUtil {
     }
 
     // 驗證 Token
-    public boolean validateToken(String token) {
+    public void validateToken() {
         try {
-            token = extractToken(token);
+            ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+
+            HttpServletRequest request = attrs.getRequest();
+            String authHeader = request.getHeader("Authorization");
+
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                throw new JwtTokenException("Missing or invalid Authorization header");
+            }
+
+            String token = extractToken(authHeader);
             if (blacklistedTokens.contains(token)) {
-                return false; // 失效的 token
+                throw new JwtTokenException("Invalid JWT token");
             }
 
             Jwts.parserBuilder()
                     .setSigningKey(secretKey)
                     .build()
                     .parseClaimsJws(token);
-            return true;
         } catch (JwtException | IllegalArgumentException e) {
-            return false;
+            throw new JwtTokenException("Invalid JWT token");
         }
     }
 
@@ -77,5 +90,26 @@ public class JwtUtil {
     // 檢查 Token 是否在黑名單
     public boolean isBlacklisted(String token) {
         return blacklistedTokens.contains(extractToken(token));
+    }
+
+    public UsersBaseDto getUserBase() {
+
+        ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+
+        HttpServletRequest request = attrs.getRequest();
+        String authHeader = request.getHeader("Authorization");
+        String token = extractToken(authHeader);
+        Claims claims = getClaimsFromToken(token);
+
+        return UsersBaseDto.builder()
+                .chineseName(claims.get("chineseName", String.class))
+                .englishName(claims.get("englishName", String.class))
+                .email(claims.get("email", String.class))
+                .cellphone(claims.get("cellphone", String.class))
+                .carNumber(claims.get("carNumber", String.class))
+                .carType(claims.get("carType", String.class))
+                .userId(claims.get("userId", Integer.class))
+                .roleName(claims.get("roleName", String.class))
+                .build();
     }
 }

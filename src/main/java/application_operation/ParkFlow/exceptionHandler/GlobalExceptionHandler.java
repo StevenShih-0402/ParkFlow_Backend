@@ -16,6 +16,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ErrorResponse
                         .builder()
+                        .errorCode("9000")
                         .message("Error")
                         .data(ex.getMessage())
                         .build()
@@ -27,7 +28,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ErrorResponse
                         .builder()
-                        .message("Error")
+                        .errorCode("9000")
                         .data(ex.getMessage())
                         .build()
                 );
@@ -38,7 +39,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ErrorResponse
                         .builder()
-                        .message("Error")
+                        .errorCode("9000")
                         .data(ex.getMessage())
                         .build()
                 );
@@ -49,7 +50,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ErrorResponse
                         .builder()
-                        .message("Error")
+                        .errorCode("9000")
                         .data(ex.getMessage())
                         .build()
                 );
