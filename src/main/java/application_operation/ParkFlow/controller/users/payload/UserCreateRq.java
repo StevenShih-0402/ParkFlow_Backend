@@ -12,8 +12,7 @@ import java.io.Serializable;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserCreateRq implements Serializable {
-    private static final long serialVersionUID = 1L;
+public class UserCreateRq {
 
     @NotBlank
     @Schema(title = "中文姓名", example = "小吳")

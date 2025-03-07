@@ -16,7 +16,8 @@ import java.time.LocalDateTime;
 public class ParkingRequestEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "parking_request_seq_gen")
+    @SequenceGenerator(name = "parking_request_seq_gen", sequenceName = "SEQ_PARKING_REQUEST", allocationSize = 1)
     @Column(name = "ID")
     private Integer id;
 

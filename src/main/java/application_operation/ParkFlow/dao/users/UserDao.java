@@ -23,6 +23,8 @@ public class UserDao {
         return usersRepository.existsByEmail(email);
     }
 
+
+
     @Transactional
     public UserEntity saveUser(UserCreateDto userCreateDto){
         UserEntity userEntity = convertToEntity(userCreateDto);
@@ -32,6 +34,8 @@ public class UserDao {
     public UserEntity queryUserByEmail(UserLoginDto userLoginDto){
         return usersRepository.findByEmail(userLoginDto.getEmail());
     }
+
+
 
     public UserEntity convertToEntity(UserCreateDto userCreateDto){
         UserEntity userEntity = new UserEntity();
