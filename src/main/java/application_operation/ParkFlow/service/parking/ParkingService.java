@@ -221,7 +221,7 @@ public class ParkingService {
             throw new HandleException("Permission Denied.");
         }
 
-        //
+        // 搜尋結果
         return parkingDao.queryUserParkingRequest(queryUserParkingRequestRq, usersBaseDto);
     }
 }
