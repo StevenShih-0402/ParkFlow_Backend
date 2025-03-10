@@ -20,8 +20,8 @@ public class ParkinRequestCreateRq implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @NotNull
-    @Schema(title = "當周開始時間", description = "當周開始時間", example = "2025-03-02T00:00:00")
-    private LocalDateTime weekStartDate;
+    @Schema(title = "下周開始時間", description = "下周開始時間", example = "2025-03-02T00:00:00")
+    private LocalDateTime nextWeekStartDate;
 
     @NotBlank
     @Schema(title = "電話號碼", description = "電話號碼")

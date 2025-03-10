@@ -1,4 +1,4 @@
-package application_operation.ParkFlow.dto;
+package application_operation.ParkFlow.dto.parking.queryUserParkingRequest;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,13 +9,9 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UsersBaseDto {
-    private String chineseName;
+public class QueryUserAndRoleDto {
+
+    private String roleName;
     private String englishName;
     private String email;
-    private String cellphone;
-    private String carNumber;
-    private String carType;
-    private Integer userId;
-    private String roleName;
 }

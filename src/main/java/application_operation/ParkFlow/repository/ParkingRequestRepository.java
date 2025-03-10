@@ -1,11 +1,10 @@
 package application_operation.ParkFlow.repository;
 
+import application_operation.ParkFlow.dto.parking.queryUserParkingRequest.ParkingRequestAndUsersDto;
 import application_operation.ParkFlow.entity.ParkingRequestEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.relational.core.sql.In;
 import org.springframework.data.repository.query.Param;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -57,4 +56,52 @@ public interface ParkingRequestRepository extends JpaRepository<ParkingRequestEn
                         STATUS IN (0, 1)
                     """, nativeQuery = true)
     List<ParkingRequestEntity> getCurrentRequest(@Param("weekStartDate")LocalDateTime weekStartDate);
+
+    @Query(
+            value = """
+                    SELECT
+                        r.APPLICATION_TIME as requestTime,
+                        u.CHINESE_NAME as chineseName,
+                        r.CAR_TYPE as carType,
+                        r.CAR_NUMBER as carNumber,
+                        r.CELLPHONE as cellphone,
+                        r.PARKING_SLOT_NUMBER as parkingSlotNumber,
+                        r.STATUS as status
+                    FROM
+                        USERS u
+                    INNER JOIN
+                        PARKING_REQUEST r
+                    ON
+                        u.ID = r.APPLICANT_ID
+                    WHERE
+                        r.WEEK_START_DATE = :weekStartDate
+                    AND
+                        u.ID = :userId
+                    """, nativeQuery = true
+    )
+    List<Object[]> queryUserParkingRequest(
+            @Param("weekStartDate") LocalDateTime weekStartDate,
+            @Param("userId") Integer userId
+    );
+
+    @Query(
+            value = """
+                    SELECT
+                        u1.ENGLISH_NAME ,
+                        u1.EMAIL
+                    FROM
+                        PARKING_REQUEST pr
+                    INNER JOIN
+                        USER u1
+                    ON
+                        pr.APPLICANT_ID = u1.ID
+                    INNER JOIN
+                        USER u2
+                    ON
+                        pr.REVIEW_ID = u2.ID
+                    WHERE
+                        pr.Id = :id
+                    """, nativeQuery = true)
+    List<Object[]> findPringkRequestAndUserById(@Param("id") Integer id);
+
 }

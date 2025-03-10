@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class ParkingRequestDto {
     private Integer Id;
+    private LocalDateTime applicationTime;
     private LocalDateTime weekStartDate;
     private String cellPhone;
     private String carNumber;
