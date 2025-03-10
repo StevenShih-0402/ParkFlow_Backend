@@ -1,0 +1,17 @@
+package application_operation.ParkFlow.dto.parking.create;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
+
+import java.time.LocalDate;
+
+@Data
+@SuperBuilder
+@AllArgsConstructor
+@NoArgsConstructor
+public class ParkingQuotaCreateDto {
+    private LocalDate nextWeekStartDate;
+    private Integer totalSlots;
+}

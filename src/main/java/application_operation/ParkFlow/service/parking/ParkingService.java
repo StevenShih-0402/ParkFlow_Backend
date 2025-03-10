@@ -1,24 +1,29 @@
 package application_operation.ParkFlow.service.parking;
 
+import application_operation.ParkFlow.Response.SuccessResponse;
 import application_operation.ParkFlow.config.EmailConfig;
 import application_operation.ParkFlow.controller.parking.payload.ParkinRequestCreateRq;
+import application_operation.ParkFlow.controller.parking.payload.ParkingQuotaCreateRq;
 import application_operation.ParkFlow.controller.parking.payload.ParkingRequestUpdateRq;
 import application_operation.ParkFlow.controller.parking.payload.QueryUserParkingRequestRq;
 import application_operation.ParkFlow.dao.users.UserDao;
 import application_operation.ParkFlow.dto.UsersBaseDto;
 import application_operation.ParkFlow.dto.mail.EmailDto;
 import application_operation.ParkFlow.dto.mail.SendEmailDto;
+import application_operation.ParkFlow.dto.parking.create.ParkingQuotaCreateDto;
 import application_operation.ParkFlow.dto.parking.create.ParkingRequestCreateDto;
 import application_operation.ParkFlow.dto.parking.create.ParkingRequestDto;
 import application_operation.ParkFlow.dto.parking.queryUserParkingRequest.QueryUserAndRoleDto;
 import application_operation.ParkFlow.dto.parking.queryUserParkingRequest.QueryUserParkingRequestDto;
 import application_operation.ParkFlow.dto.parking.update.ParkingRequestUpdateDto;
 import application_operation.ParkFlow.dto.parking.update.UpdateParkingRequestDto;
+import application_operation.ParkFlow.entity.ParkingQuotaEntity;
 import application_operation.ParkFlow.entity.ParkingRequestEntity;
 import application_operation.ParkFlow.enums.RoleNameEnum;
 import application_operation.ParkFlow.exception.HandleException;
 import application_operation.ParkFlow.jwtToken.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import application_operation.ParkFlow.dao.parking.ParkingDao;
@@ -224,4 +229,11 @@ public class ParkingService {
         // 搜尋結果
         return parkingDao.queryUserParkingRequest(queryUserParkingRequestRq, usersBaseDto);
     }
+
+//    public SuccessResponse<Integer> createParkingQuota(ParkingQuotaCreateRq parkingQuotaCreateRq){
+//        ParkingQuotaCreateDto parkingQuotaCreateDto = new ParkingQuotaCreateDto();
+//        BeanUtils.copyProperties(parkingQuotaCreateRq, parkingQuotaCreateDto);
+//
+//        ParkingQuotaEntity saveEntity = parkingDao.
+//    }
 }
