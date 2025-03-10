@@ -11,6 +11,7 @@ import application_operation.ParkFlow.enums.ResponseCodeEnum;
 import application_operation.ParkFlow.enums.RoleNameEnum;
 import application_operation.ParkFlow.exception.HandleException;
 import application_operation.ParkFlow.jwtToken.JwtUtil;
+import application_operation.ParkFlow.service.ValidUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -21,35 +22,21 @@ public class UsersService {
 
     private final UserDao userDao;
     private final JwtUtil jwtUtils;
+    private final ValidUtils validUtils;
 
-    public String create(UserCreateRq userCreateRq){
+    public SuccessResponse<String> create(UserCreateRq userCreateRq){
 
         UserCreateDto userCreateDto = new UserCreateDto();
         BeanUtils.copyProperties(userCreateRq, userCreateDto);
 
-        // ChineseName 驗證
-        if(!userCreateDto.getChineseName().matches("^[\\p{IsHan}]+$")){
-            throw new HandleException("只能輸入中文。");
-        }
-
-        // EnglishName 驗證
-        if(!userCreateDto.getEnglishName().matches("^[A-Za-z\\- ]+$")){
-            throw new HandleException("只能輸入英文與連接線。");
-        }
-
-        // Email 重複驗證
-        if(userDao.existEmail(userCreateDto.getEmail())){
-            throw new HandleException("已經有重複的 Email。");
-        }
-
-        // 電話號碼格式驗證
-        if(!userCreateDto.getCellphone().matches("^\\d{10}$")){
-            throw new HandleException("格式錯誤，電話號碼必須為10個數字。");
-        }
+        validUtils.validateChineseName(userCreateDto.getChineseName());  // ChineseName 驗證
+        validUtils.validateEnglishName(userCreateDto.getEnglishName());  // EnglishName 驗證
+        validUtils.validateEmail(userCreateDto.getEmail());  // Email 重複註冊驗證
+        validUtils.validateCellphone(userCreateDto.getCellphone());  // 電話號碼格式驗證
 
         UserEntity savedUser = userDao.saveUser(userCreateDto);
 
-        return jwtUtils.generateToken(
+        String token = jwtUtils.generateToken(
             savedUser.getId(),
             savedUser.getChineseName(),
             savedUser.getEnglishName(),
@@ -59,18 +46,22 @@ public class UsersService {
             savedUser.getCarType(),
             RoleNameEnum.getRoleNameById(savedUser.getRoleId())
         );
+
+        return SuccessResponse.<String>builder()
+                .data(token)
+                .build();
     }
 
 
 
-    public SuccessResponse<Object> login(UserLoginRq userLoginRq){
+    public SuccessResponse<String> login(UserLoginRq userLoginRq){
 
         UserLoginDto userLoginDto = new UserLoginDto();
         BeanUtils.copyProperties(userLoginRq, userLoginDto);
 
         // Email 不存在的話，回傳 Success 0001
         if(!userDao.existEmail(userLoginDto.getEmail())){
-            return SuccessResponse.builder()
+            return SuccessResponse.<String>builder()
                     .code(ResponseCodeEnum.REGISTER_REQ.getResponseCode())// 0001
                     .data("找不到對應的使用者，請註冊新用戶。")
                     .build();
@@ -90,7 +81,7 @@ public class UsersService {
                 RoleNameEnum.getRoleNameById(userData.getRoleId())
         );
 
-        return SuccessResponse.builder()
+        return SuccessResponse.<String>builder()
                 .data(token)
                 .build();
     }
