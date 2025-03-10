@@ -6,20 +6,22 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.Length;
 
 import java.io.Serializable;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserCreateRq implements Serializable {
-    private static final long serialVersionUID = 1L;
+public class UserCreateRq {
 
     @NotBlank
+    @Length(max = 20, min = 1)
     @Schema(title = "中文姓名", example = "小吳")
     private String chineseName;
 
     @NotBlank
+    @Length(max = 50, min = 1)
     @Schema(title = "英文姓名", example = "Wu")
     private String englishName;
 

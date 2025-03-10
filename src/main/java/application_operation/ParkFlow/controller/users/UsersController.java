@@ -23,17 +23,14 @@ public class UsersController {
     private final UsersService usersService;
 
     @PostMapping("/create")
-    @Operation(summary = "註冊使用者", description = "註冊使用者")
-    public ResponseEntity<SuccessResponse<Object>> create(@Valid @RequestBody UserCreateRq userCreateRq){
-        String token =  usersService.create(userCreateRq);   // Jwt Token
-        return ResponseEntity.ok(SuccessResponse.builder()
-                .data(token)
-                .build());
+    @Operation(summary = "新增使用者", description = "新增使用者")
+    public ResponseEntity<SuccessResponse<String>> create(@Valid @RequestBody UserCreateRq userCreateRq){
+        return ResponseEntity.ok(usersService.create(userCreateRq));   // Jwt Token
     }
 
     @PostMapping("/login")
-    @Operation(summary = "使用者登入驗證", description = "使用者登入驗證")
-    public ResponseEntity<SuccessResponse<Object>> login(@Valid @RequestBody UserLoginRq userLoginRq){
+    @Operation(summary = "驗證使用者", description = "驗證使用者")
+    public ResponseEntity<SuccessResponse<String>> login(@Valid @RequestBody UserLoginRq userLoginRq){
         return ResponseEntity.ok(usersService.login(userLoginRq));  // Jwt Token or 需要註冊
     }
 }
