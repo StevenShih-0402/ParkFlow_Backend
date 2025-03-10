@@ -19,7 +19,7 @@ public class ParkingRequestUpdateRq {
     private Integer id;
 
     @NotNull
-    @Schema(title = "審核結果", description = "審核結果", example = "0")
+    @Schema(title = "審核結果", description = "審核結果", example = "APPROVED")
     private ParkingRequestEnum status;
 
     @NotNull

@@ -1,0 +1,29 @@
+package application_operation.ParkFlow.config;
+
+import application_operation.ParkFlow.dto.mail.EmailDto;
+import application_operation.ParkFlow.exception.HandleException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.stereotype.Service;
+
+@Service
+@RequiredArgsConstructor
+public class EmailConfig {
+    private final JavaMailSender mailSender;
+
+    public void consumeEmail(EmailDto emailDto) {
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setTo(emailDto.getEmail());
+            message.setSubject(emailDto.getSubject());
+            message.setText(emailDto.getText());
+            message.setFrom("${spring.mail.username}");
+
+            mailSender.send(message);
+        } catch (Exception e) {
+            throw new HandleException(e.getMessage());
+        }
+    }
+}

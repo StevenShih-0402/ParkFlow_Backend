@@ -4,8 +4,8 @@ import application_operation.ParkFlow.Response.SuccessResponse;
 import application_operation.ParkFlow.controller.users.payload.UserCreateRq;
 import application_operation.ParkFlow.controller.users.payload.UserLoginRq;
 import application_operation.ParkFlow.dao.users.UserDao;
-import application_operation.ParkFlow.dto.user.create.UserCreateDto;
-import application_operation.ParkFlow.dto.user.create.UserLoginDto;
+import application_operation.ParkFlow.dto.users.create.UserCreateDto;
+import application_operation.ParkFlow.dto.users.create.UserLoginDto;
 import application_operation.ParkFlow.entity.UserEntity;
 import application_operation.ParkFlow.enums.ResponseCodeEnum;
 import application_operation.ParkFlow.enums.RoleNameEnum;
@@ -13,7 +13,6 @@ import application_operation.ParkFlow.exception.HandleException;
 import application_operation.ParkFlow.jwtToken.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
