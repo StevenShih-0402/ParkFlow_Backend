@@ -17,8 +17,8 @@ public class GlobalExceptionHandler {
                 .body(ErrorResponse
                         .builder()
                         .errorCode("9000")
-                        .message("Error")
-                        .data(ex.getMessage())
+                        .message(ex.getMessage())
+                        .data(null)
                         .build()
                 );
     }
@@ -29,7 +29,8 @@ public class GlobalExceptionHandler {
                 .body(ErrorResponse
                         .builder()
                         .errorCode("9000")
-                        .data(ex.getMessage())
+                        .message(ex.getMessage())
+                        .data(null)
                         .build()
                 );
     }
@@ -40,7 +41,8 @@ public class GlobalExceptionHandler {
                 .body(ErrorResponse
                         .builder()
                         .errorCode("9000")
-                        .data(ex.getMessage())
+                        .message(ex.getMessage())
+                        .data(null)
                         .build()
                 );
     }
@@ -51,7 +53,8 @@ public class GlobalExceptionHandler {
                 .body(ErrorResponse
                         .builder()
                         .errorCode("9000")
-                        .data(ex.getMessage())
+                        .message(ex.getMessage())
+                        .data(null)
                         .build()
                 );
     }
