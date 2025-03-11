@@ -2,7 +2,7 @@ package application_operation.ParkFlow.dao.parking;
 
 import application_operation.ParkFlow.controller.parking.payload.QueryUserParkingRequestRq;
 import application_operation.ParkFlow.dto.UsersBaseDto;
-import application_operation.ParkFlow.dto.mail.SendEmailDto;
+import application_operation.ParkFlow.dto.parking.create.ParkingQuotaCreateDto;
 import application_operation.ParkFlow.dto.parking.create.ParkingRequestCreateDto;
 import application_operation.ParkFlow.dto.parking.create.ParkingRequestDto;
 import application_operation.ParkFlow.dto.parking.queryUserParkingRequest.QueryUserParkingRequestDto;
@@ -20,7 +20,6 @@ import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -30,7 +29,7 @@ import java.util.List;
 public class ParkingDao {
 
     private final ParkingRequestRepository parkingRequestRepository;
-    private final ParkingQuotaRepository pargetTotalSlotsRepository;
+    private final ParkingQuotaRepository parkingQuotaRepository;
 
     public List<ParkingRequestEntity> findParkingRequestById (ParkingRequestUpdateDto parkingRequestUpdateDto) {
 
@@ -56,7 +55,7 @@ public class ParkingDao {
         }
 
         List<ParkingRequestEntity> currentRequest = parkingRequestRepository.getCurrentRequest(parkingRequestCreateDto.getNextWeekStartDate());
-        List<ParkingQuotaEntity> totalSlots = pargetTotalSlotsRepository.getTotalSlots(parkingRequestCreateDto.getNextWeekStartDate());
+        List<ParkingQuotaEntity> totalSlots = parkingQuotaRepository.getTotalSlots(parkingRequestCreateDto.getNextWeekStartDate());
 
         return currentRequest.size() < totalSlots.get(0).getTotalSlots();
     }
@@ -84,6 +83,14 @@ public class ParkingDao {
                 .carType(parkingRequestCreateDto.getCarType())
                 .applicationTime(applicationTime)
                 .build();
+    }
+
+    public ParkingQuotaEntity saveParkingQuota(ParkingQuotaCreateDto parkingQuotaCreateDto){
+        ParkingQuotaEntity parkingQuotaEntity = new ParkingQuotaEntity();
+        parkingQuotaEntity.setWeekStartDate(parkingQuotaCreateDto.getWeekStartDate());
+        parkingQuotaEntity.setTotalSlots(parkingQuotaCreateDto.getTotalSlots());
+
+        return parkingQuotaRepository.save(parkingQuotaEntity);
     }
 
     public UpdateParkingRequestDto updateParkingRequest(

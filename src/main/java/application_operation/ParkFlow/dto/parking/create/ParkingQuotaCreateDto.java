@@ -12,6 +12,6 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ParkingQuotaCreateDto {
-    private LocalDate nextWeekStartDate;
+    private LocalDate weekStartDate;
     private Integer totalSlots;
 }

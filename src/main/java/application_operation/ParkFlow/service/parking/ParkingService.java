@@ -22,6 +22,7 @@ import application_operation.ParkFlow.entity.ParkingRequestEntity;
 import application_operation.ParkFlow.enums.RoleNameEnum;
 import application_operation.ParkFlow.exception.HandleException;
 import application_operation.ParkFlow.jwtToken.JwtUtil;
+import application_operation.ParkFlow.service.ValidUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -45,6 +46,7 @@ public class ParkingService {
     private final ParkingDao parkingDao;
     private final UserDao userDao;
     private final JwtUtil jwtUtil;
+    private final ValidUtils validUtils;
     private final EmailConfig emailConfig;
 
     public boolean isValidRequest(LocalDateTime now, LocalDateTime requestedDate, LocalDateTime nextWeekStartDate) {
@@ -230,10 +232,28 @@ public class ParkingService {
         return parkingDao.queryUserParkingRequest(queryUserParkingRequestRq, usersBaseDto);
     }
 
-//    public SuccessResponse<Integer> createParkingQuota(ParkingQuotaCreateRq parkingQuotaCreateRq){
-//        ParkingQuotaCreateDto parkingQuotaCreateDto = new ParkingQuotaCreateDto();
-//        BeanUtils.copyProperties(parkingQuotaCreateRq, parkingQuotaCreateDto);
-//
-//        ParkingQuotaEntity saveEntity = parkingDao.
-//    }
+    public SuccessResponse<Integer> createParkingQuota(ParkingQuotaCreateRq parkingQuotaCreateRq){
+
+        // Jwt Token 驗證
+        jwtUtil.validateToken();
+
+        // 取得使用者個人資料
+        UsersBaseDto usersBaseDto = jwtUtil.getUserBase();
+
+        // 檢查權限為 FM
+        if(!usersBaseDto.getRoleName().equals(RoleNameEnum.FM.name())) {
+            throw new HandleException("Permission verification error.");
+        }
+
+        ParkingQuotaCreateDto parkingQuotaCreateDto = new ParkingQuotaCreateDto();
+        BeanUtils.copyProperties(parkingQuotaCreateRq, parkingQuotaCreateDto);
+
+        validUtils.validateAfterToday(parkingQuotaCreateDto.getWeekStartDate());
+
+        ParkingQuotaEntity saveEntity = parkingDao.saveParkingQuota(parkingQuotaCreateDto);
+
+        return SuccessResponse.<Integer>builder()
+                .data(saveEntity.getTotalSlots())
+                .build();
+    }
 }

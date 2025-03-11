@@ -3,8 +3,6 @@ package application_operation.ParkFlow.enums;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import java.util.Arrays;
-
 import static java.util.Arrays.stream;
 
 @Getter

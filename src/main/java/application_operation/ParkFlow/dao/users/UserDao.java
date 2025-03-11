@@ -6,24 +6,31 @@ import application_operation.ParkFlow.dto.parking.queryUserParkingRequest.QueryU
 import application_operation.ParkFlow.dto.users.UserCreateDto;
 import application_operation.ParkFlow.dto.users.UserLoginDto;
 import application_operation.ParkFlow.entity.UserEntity;
+import application_operation.ParkFlow.repository.RolesRepository;
 import application_operation.ParkFlow.repository.UsersRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Component
+@Log4j2
 @RequiredArgsConstructor
 public class UserDao {
 
     private final UsersRepository usersRepository;
+    private final RolesRepository rolesRepository;
 
     public Boolean existEmail(String email){
         return usersRepository.existsByEmail(email);
     }
 
-    @Transactional
+    public String findRoleName(Integer roleId){
+        return rolesRepository.findById(roleId).get().getRoleName();
+    }
+
     public UserEntity saveUser(UserCreateDto userCreateDto){
         UserEntity userEntity = convertToEntity(userCreateDto);
         return usersRepository.save(userEntity);

@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Data
-@Table(name = "ROLES")
+@Table(name = "ROLE")
 @AllArgsConstructor
 @NoArgsConstructor
 public class RoleEntity {
@@ -21,9 +21,9 @@ public class RoleEntity {
     @Column(name = "ROLENAME")
     private String roleName;
 
-    @Column(name = "CREATE_AT")
+    @Column(name = "CREATED_AT")
     private LocalDateTime createAt;
 
-    @Column(name = "UPDATE_AT")
+    @Column(name = "UPDATED_AT")
     private LocalDateTime updateAt;
 }

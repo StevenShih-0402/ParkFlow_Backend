@@ -22,12 +22,6 @@ import org.springframework.web.bind.annotation.*;
 public class ParkingController {
     private final ParkingService parkingService;
 
-//    @Operation(summary = "新增下週停車數量" ,description = "新增下週停車數量")
-//    @PostMapping(value = "create-parking-quota")
-//    public ResponseEntity<SuccessResponse<ParkingRequestDto>> create(@Valid @RequestBody ParkingQuotaCreateRq parkingQuotaCreateRq) {
-//        return parkingService.createParkingQuota(parkingQuotaCreateRq);
-//    }
-
     @Operation(summary = "申請停車位" ,description = "申請停車位")
     @PostMapping(value = "create")
     public ResponseEntity<SuccessResponse<ParkingRequestDto>> create(@Valid @RequestBody ParkinRequestCreateRq parkinRequestCreateRq) {
@@ -56,5 +50,11 @@ public class ParkingController {
         return ResponseEntity.ok(SuccessResponse.<QueryUserParkingRequestDto>builder()
                 .data(queryUserParkingRequestDto)
                 .build());
+    }
+
+    @Operation(summary = "新增下週停車數量" ,description = "新增下週停車數量")
+    @PostMapping(value = "create-parking-quota")
+    public ResponseEntity<SuccessResponse<Integer>> create(@Valid @RequestBody ParkingQuotaCreateRq parkingQuotaCreateRq) {
+        return ResponseEntity.ok(parkingService.createParkingQuota(parkingQuotaCreateRq));
     }
 }

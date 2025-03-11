@@ -39,7 +39,7 @@ public class UserEntity {
     private String carType;
 
     @Column(name = "ROLE_ID", insertable = false)
-    private Integer roleId;
+    private Integer roleId = 1;
 
     @Column(name = "CREATED_AT", insertable = false)
     private LocalDateTime createAt;
