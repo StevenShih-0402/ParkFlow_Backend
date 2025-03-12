@@ -4,9 +4,11 @@ import application_operation.ParkFlow.Response.SuccessResponse;
 import application_operation.ParkFlow.controller.parking.payload.ParkinRequestCreateRq;
 import application_operation.ParkFlow.controller.parking.payload.ParkingQuotaCreateRq;
 import application_operation.ParkFlow.controller.parking.payload.ParkingRequestUpdateRq;
+import application_operation.ParkFlow.controller.parking.payload.QueryParkingRequestRq;
 import application_operation.ParkFlow.controller.parking.payload.QueryUserParkingRequestRq;
 import application_operation.ParkFlow.dto.parking.create.ParkingRequestDto;
-import application_operation.ParkFlow.dto.parking.queryUserParkingRequest.QueryUserParkingRequestDto;
+import application_operation.ParkFlow.dto.parking.queryParkingRequest.ReParkingRequestDto;
+import application_operation.ParkFlow.dto.parking.queryUserParkingRequest.ReUserParkingRequestDto;
 import application_operation.ParkFlow.dto.parking.update.UpdateParkingRequestDto;
 import application_operation.ParkFlow.service.parking.ParkingService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -44,10 +46,10 @@ public class ParkingController {
 
     @Operation(summary = "取得一般使用者申請紀錄", description = "取得一般使用者申請紀錄")
     @GetMapping(value = "queryUserParkingRequest")
-    public ResponseEntity<SuccessResponse<QueryUserParkingRequestDto>> queryUserParkingRequest(@Valid @RequestBody QueryUserParkingRequestRq queryUserParkingRequestRq) {
-        QueryUserParkingRequestDto queryUserParkingRequestDto = parkingService.queryUserParkingRequest(queryUserParkingRequestRq);
+    public ResponseEntity<SuccessResponse<ReUserParkingRequestDto>> queryUserParkingRequest(@Valid @RequestBody QueryUserParkingRequestRq queryUserParkingRequestRq) {
+        ReUserParkingRequestDto queryUserParkingRequestDto = parkingService.queryUserParkingRequest(queryUserParkingRequestRq);
 
-        return ResponseEntity.ok(SuccessResponse.<QueryUserParkingRequestDto>builder()
+        return ResponseEntity.ok(SuccessResponse.<ReUserParkingRequestDto>builder()
                 .data(queryUserParkingRequestDto)
                 .build());
     }
@@ -56,5 +58,15 @@ public class ParkingController {
     @PostMapping(value = "create-parking-quota")
     public ResponseEntity<SuccessResponse<Integer>> create(@Valid @RequestBody ParkingQuotaCreateRq parkingQuotaCreateRq) {
         return ResponseEntity.ok(parkingService.createParkingQuota(parkingQuotaCreateRq));
+    }
+
+    @Operation(summary = "FM取得停車資訊", description = "FM取得停車資訊")
+    @GetMapping(value = "queryFmParkingRequest")
+    public ResponseEntity<SuccessResponse<ReParkingRequestDto>> queryFmParkingRequest(@Valid @RequestBody QueryParkingRequestRq queryParkingRequestRq) {
+        ReParkingRequestDto queryParkingRequest = parkingService.queryFmParkingRequest(queryParkingRequestRq);
+
+        return ResponseEntity.ok(SuccessResponse.<ReParkingRequestDto>builder()
+                .data(queryParkingRequest)
+                .build());
     }
 }
