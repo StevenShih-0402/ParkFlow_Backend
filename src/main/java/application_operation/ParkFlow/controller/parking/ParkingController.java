@@ -41,7 +41,7 @@ public class ParkingController {
     }
 
     @Operation(summary = "取得一般使用者申請紀錄", description = "取得一般使用者申請紀錄")
-    @GetMapping(value = "query-user-parking-request")
+    @PostMapping(value = "queryUserParkingRequest")
     public ResponseEntity<SuccessResponse<ReUserParkingRequestDto>> queryUserParkingRequest(@Valid @RequestBody QueryUserParkingRequestRq queryUserParkingRequestRq) {
         ReUserParkingRequestDto queryUserParkingRequestDto = parkingService.queryUserParkingRequest(queryUserParkingRequestRq);
 
@@ -71,7 +71,7 @@ public class ParkingController {
     }
 
     @Operation(summary = "FM取得停車資訊", description = "FM取得停車資訊")
-    @GetMapping(value = "query-fm-parking-request")
+    @PostMapping(value = "queryFmParkingRequest")
     public ResponseEntity<SuccessResponse<ReParkingRequestDto>> queryFmParkingRequest(@Valid @RequestBody QueryParkingRequestRq queryParkingRequestRq) {
         ReParkingRequestDto queryParkingRequest = parkingService.queryFmParkingRequest(queryParkingRequestRq);
 
