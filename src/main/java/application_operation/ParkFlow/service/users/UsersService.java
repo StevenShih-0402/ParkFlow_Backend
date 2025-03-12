@@ -22,7 +22,7 @@ public class UsersService {
     private final JwtUtil jwtUtils;
     private final ValidUtils validUtils;
 
-    public SuccessResponse<String> create(UserCreateRq userCreateRq){
+    public String create(UserCreateRq userCreateRq){
 
         UserCreateDto userCreateDto = new UserCreateDto();
         BeanUtils.copyProperties(userCreateRq, userCreateDto);
@@ -31,7 +31,7 @@ public class UsersService {
 
         UserEntity savedUser = userDao.saveUser(userCreateDto);
 
-        String token = jwtUtils.generateToken(
+        return jwtUtils.generateToken(
             savedUser.getId(),
             savedUser.getChineseName(),
             savedUser.getEnglishName(),
@@ -41,32 +41,24 @@ public class UsersService {
             savedUser.getCarType(),
             userDao.findRoleName(savedUser.getRoleId())
         );
-
-        return SuccessResponse.<String>builder()
-                .data(token)
-                .build();
     }
 
 
 
-    public SuccessResponse<String> login(UserLoginRq userLoginRq){
+    public String login(UserLoginRq userLoginRq){
 
         UserLoginDto userLoginDto = new UserLoginDto();
         BeanUtils.copyProperties(userLoginRq, userLoginDto);
 
         // Email 不存在的話，回傳 Success 0001
         if(!userDao.existEmail(userLoginDto.getEmail())){
-            return SuccessResponse.<String>builder()
-                    .code(ResponseCodeEnum.REGISTER_REQ.getResponseCode())// 0001
-                    .message("找不到對應的使用者，請註冊新用戶。")
-                    .data(null)
-                    .build();
+            return ResponseCodeEnum.REGISTER_REQ.getResponseCode();
         }
 
         // 存在的話，用 Email 找出用戶資料並包裝成 Jwt
         UserEntity userData = userDao.queryUserByEmail(userLoginDto);
 
-        String token = jwtUtils.generateToken(
+        return jwtUtils.generateToken(
                 userData.getId(),
                 userData.getChineseName(),
                 userData.getEnglishName(),
@@ -76,9 +68,5 @@ public class UsersService {
                 userData.getCarType(),
                 userDao.findRoleName(userData.getRoleId())
         );
-
-        return SuccessResponse.<String>builder()
-                .data(token)
-                .build();
     }
 }

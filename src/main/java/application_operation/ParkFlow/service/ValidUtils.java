@@ -42,4 +42,22 @@ public class ValidUtils {
             throw new HandleException("日期資料不能重複。");
         }
     }
+
+    // 日期
+    public void validateDateNotRepeatExceptSelf(Integer id, LocalDateTime inputDate){
+
+        // 日期是否有和自己以外的資料重複
+        if(parkingDao.existsByWeekStartDateExceptSelf(id, inputDate)){
+            throw new HandleException("日期資料不能和此資料以外的內容重複。");
+        }
+    }
+
+    // 停車上限資料不存在
+    public void validateNotExistsByParkingQuotaId(Integer id){
+
+        // 資料庫是否有對應的資料
+        if(!parkingDao.existsByParkingQuotaId(id)){
+            throw new HandleException("資料庫找不到 id 對應的內容。");
+        }
+    }
 }

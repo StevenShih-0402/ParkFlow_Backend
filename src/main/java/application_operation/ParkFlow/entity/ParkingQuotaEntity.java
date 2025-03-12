@@ -24,9 +24,9 @@ public class ParkingQuotaEntity {
     private LocalDateTime weekStartDate;
 
     @Column(name = "TOTAL_SLOTS")
-    private Integer totalSlots;
+    private Integer totalSlots = 1;
 
-    @Column(name = "CREATED_AT", insertable = false)
+    @Column(name = "CREATED_AT", insertable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "UPDATED_AT", insertable = false)

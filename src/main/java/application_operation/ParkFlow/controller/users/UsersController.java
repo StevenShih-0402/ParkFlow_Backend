@@ -3,6 +3,7 @@ package application_operation.ParkFlow.controller.users;
 import application_operation.ParkFlow.Response.SuccessResponse;
 import application_operation.ParkFlow.controller.users.payload.UserCreateRq;
 import application_operation.ParkFlow.controller.users.payload.UserLoginRq;
+import application_operation.ParkFlow.enums.ResponseCodeEnum;
 import application_operation.ParkFlow.service.users.UsersService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -25,12 +26,27 @@ public class UsersController {
     @PostMapping("/create")
     @Operation(summary = "新增使用者", description = "新增使用者")
     public ResponseEntity<SuccessResponse<String>> create(@Valid @RequestBody UserCreateRq userCreateRq){
-        return ResponseEntity.ok(usersService.create(userCreateRq));   // Jwt Token
+        String token = usersService.create(userCreateRq);   // Jwt Token
+
+        return ResponseEntity.ok(SuccessResponse.<String>builder()
+                .data(token)
+                .build());
     }
 
     @PostMapping("/login")
     @Operation(summary = "驗證使用者", description = "驗證使用者")
     public ResponseEntity<SuccessResponse<String>> login(@Valid @RequestBody UserLoginRq userLoginRq){
-        return ResponseEntity.ok(usersService.login(userLoginRq));  // Jwt Token or 需要註冊
+        String response = usersService.login(userLoginRq);
+
+        if(response.equals(ResponseCodeEnum.REGISTER_REQ.getResponseCode())){
+            return ResponseEntity.ok(SuccessResponse.<String>builder()
+                    .code(response)
+                    .message("找不到對應的用戶資料，請先註冊後再登入系統。")
+                    .data(null)
+                    .build());
+        }
+        return ResponseEntity.ok(SuccessResponse.<String>builder()
+                .data(response)
+                .build()); // Jwt Token or 需要註冊
     }
 }

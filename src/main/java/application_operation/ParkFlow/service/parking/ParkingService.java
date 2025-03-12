@@ -2,11 +2,7 @@ package application_operation.ParkFlow.service.parking;
 
 import application_operation.ParkFlow.Response.SuccessResponse;
 import application_operation.ParkFlow.config.EmailConfig;
-import application_operation.ParkFlow.controller.parking.payload.ParkinRequestCreateRq;
-import application_operation.ParkFlow.controller.parking.payload.ParkingQuotaCreateRq;
-import application_operation.ParkFlow.controller.parking.payload.ParkingRequestUpdateRq;
-import application_operation.ParkFlow.controller.parking.payload.QueryParkingRequestRq;
-import application_operation.ParkFlow.controller.parking.payload.QueryUserParkingRequestRq;
+import application_operation.ParkFlow.controller.parking.payload.*;
 import application_operation.ParkFlow.dao.users.UserDao;
 import application_operation.ParkFlow.dto.UsersBaseDto;
 import application_operation.ParkFlow.dto.mail.EmailDto;
@@ -19,6 +15,7 @@ import application_operation.ParkFlow.dto.parking.queryUserParkingRequest.QueryU
 import application_operation.ParkFlow.dto.parking.queryUserParkingRequest.QueryUserParkingRequestDto;
 import application_operation.ParkFlow.dto.parking.queryParkingRequest.ReParkingRequestDto;
 import application_operation.ParkFlow.dto.parking.queryUserParkingRequest.ReUserParkingRequestDto;
+import application_operation.ParkFlow.dto.parking.update.ParkingQuotaUpdateDto;
 import application_operation.ParkFlow.dto.parking.update.ParkingRequestUpdateDto;
 import application_operation.ParkFlow.dto.parking.update.UpdateParkingRequestDto;
 import application_operation.ParkFlow.entity.ParkingQuotaEntity;
@@ -276,7 +273,7 @@ public class ParkingService {
         return reParkingRequestDto;
     }
 
-    public SuccessResponse<Integer> createParkingQuota(ParkingQuotaCreateRq parkingQuotaCreateRq){
+    public Integer createParkingQuota(ParkingQuotaCreateRq parkingQuotaCreateRq){
 
         // Jwt Token 驗證
         jwtUtil.validateToken();
@@ -296,9 +293,28 @@ public class ParkingService {
         validUtils.validateDateNotRepeat(parkingQuotaCreateDto.getWeekStartDate());
 
         ParkingQuotaEntity saveEntity = parkingDao.saveParkingQuota(parkingQuotaCreateDto);
+        return saveEntity.getTotalSlots();
+    }
 
-        return SuccessResponse.<Integer>builder()
-                .data(saveEntity.getTotalSlots())
-                .build();
+    public Integer updateParkingQuota(ParkingQuotaUpdateRq parkingQuotaUpdateRq){
+        // Jwt Token 驗證
+        jwtUtil.validateToken();
+
+        // 取得使用者個人資料
+        UsersBaseDto usersBaseDto = jwtUtil.getUserBase();
+
+        // 檢查權限為 FM
+        if(!usersBaseDto.getRoleName().equals(RoleNameEnum.FM.name())) {
+            throw new HandleException("Permission verification error.");
+        }
+
+        ParkingQuotaUpdateDto parkingQuotaUpdateDto = new ParkingQuotaUpdateDto();
+        BeanUtils.copyProperties(parkingQuotaUpdateRq, parkingQuotaUpdateDto);
+
+        validUtils.validateNotExistsByParkingQuotaId(parkingQuotaUpdateDto.getId());
+        validUtils.validateDateNotRepeatExceptSelf(parkingQuotaUpdateDto.getId(), parkingQuotaUpdateDto.getWeekStartDate());
+
+        ParkingQuotaEntity updateEntity = parkingDao.updateParkingQuota(parkingQuotaUpdateDto);
+        return updateEntity.getTotalSlots();
     }
 }
