@@ -1,4 +1,4 @@
-package application_operation.ParkFlow.dto.users.create;
+package application_operation.ParkFlow.dto.users;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

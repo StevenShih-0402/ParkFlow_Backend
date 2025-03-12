@@ -1,6 +1,5 @@
 package application_operation.ParkFlow.dto.parking.queryUserParkingRequest;
 
-import application_operation.ParkFlow.enums.ParkingRequestEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

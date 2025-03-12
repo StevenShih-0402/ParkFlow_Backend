@@ -3,12 +3,11 @@ package application_operation.ParkFlow.controller.users.payload;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.validator.constraints.Length;
-
-import java.io.Serializable;
 
 @Data
 @NoArgsConstructor
@@ -16,12 +15,14 @@ import java.io.Serializable;
 public class UserCreateRq {
 
     @NotBlank
-    @Length(max = 20, min = 1)
+    @Size(max = 20, min = 1)
+    @Pattern(regexp = "^\\p{IsHan}+$", message = "中文姓名欄位只能填入中文。")
     @Schema(title = "中文姓名", example = "小吳")
     private String chineseName;
 
     @NotBlank
-    @Length(max = 50, min = 1)
+    @Size(max = 50, min = 1)
+    @Pattern(regexp = "^[A-Za-z\\- ]+$", message = "英文姓名欄位只能填入英文、空格和連接線。")
     @Schema(title = "英文姓名", example = "Wu")
     private String englishName;
 
@@ -31,6 +32,7 @@ public class UserCreateRq {
     private String email;
 
     @NotBlank
+    @Pattern(regexp = "^09\\d{8}$", message = "行動電話必須為台灣電話號碼格式 (09開頭，共10個數字)。")
     @Schema(title = "電話號碼", example = "0912567456")
     private String cellphone;
 

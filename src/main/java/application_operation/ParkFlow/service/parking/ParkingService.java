@@ -1,24 +1,30 @@
 package application_operation.ParkFlow.service.parking;
 
+import application_operation.ParkFlow.Response.SuccessResponse;
 import application_operation.ParkFlow.config.EmailConfig;
 import application_operation.ParkFlow.controller.parking.payload.ParkinRequestCreateRq;
+import application_operation.ParkFlow.controller.parking.payload.ParkingQuotaCreateRq;
 import application_operation.ParkFlow.controller.parking.payload.ParkingRequestUpdateRq;
 import application_operation.ParkFlow.controller.parking.payload.QueryUserParkingRequestRq;
 import application_operation.ParkFlow.dao.users.UserDao;
 import application_operation.ParkFlow.dto.UsersBaseDto;
 import application_operation.ParkFlow.dto.mail.EmailDto;
 import application_operation.ParkFlow.dto.mail.SendEmailDto;
+import application_operation.ParkFlow.dto.parking.create.ParkingQuotaCreateDto;
 import application_operation.ParkFlow.dto.parking.create.ParkingRequestCreateDto;
 import application_operation.ParkFlow.dto.parking.create.ParkingRequestDto;
 import application_operation.ParkFlow.dto.parking.queryUserParkingRequest.QueryUserAndRoleDto;
 import application_operation.ParkFlow.dto.parking.queryUserParkingRequest.QueryUserParkingRequestDto;
 import application_operation.ParkFlow.dto.parking.update.ParkingRequestUpdateDto;
 import application_operation.ParkFlow.dto.parking.update.UpdateParkingRequestDto;
+import application_operation.ParkFlow.entity.ParkingQuotaEntity;
 import application_operation.ParkFlow.entity.ParkingRequestEntity;
 import application_operation.ParkFlow.enums.RoleNameEnum;
 import application_operation.ParkFlow.exception.HandleException;
 import application_operation.ParkFlow.jwtToken.JwtUtil;
+import application_operation.ParkFlow.service.ValidUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import application_operation.ParkFlow.dao.parking.ParkingDao;
@@ -40,6 +46,7 @@ public class ParkingService {
     private final ParkingDao parkingDao;
     private final UserDao userDao;
     private final JwtUtil jwtUtil;
+    private final ValidUtils validUtils;
     private final EmailConfig emailConfig;
 
     public boolean isValidRequest(LocalDateTime now, LocalDateTime requestedDate, LocalDateTime nextWeekStartDate) {
@@ -223,5 +230,31 @@ public class ParkingService {
 
         // 搜尋結果
         return parkingDao.queryUserParkingRequest(queryUserParkingRequestRq, usersBaseDto);
+    }
+
+    public SuccessResponse<Integer> createParkingQuota(ParkingQuotaCreateRq parkingQuotaCreateRq){
+
+        // Jwt Token 驗證
+        jwtUtil.validateToken();
+
+        // 取得使用者個人資料
+        UsersBaseDto usersBaseDto = jwtUtil.getUserBase();
+
+        // 檢查權限為 FM
+        if(!usersBaseDto.getRoleName().equals(RoleNameEnum.FM.name())) {
+            throw new HandleException("Permission verification error.");
+        }
+
+        ParkingQuotaCreateDto parkingQuotaCreateDto = new ParkingQuotaCreateDto();
+        BeanUtils.copyProperties(parkingQuotaCreateRq, parkingQuotaCreateDto);
+
+        validUtils.validateAfterToday(parkingQuotaCreateDto.getWeekStartDate());
+        validUtils.validateDateNotRepeat(parkingQuotaCreateDto.getWeekStartDate());
+
+        ParkingQuotaEntity saveEntity = parkingDao.saveParkingQuota(parkingQuotaCreateDto);
+
+        return SuccessResponse.<Integer>builder()
+                .data(saveEntity.getTotalSlots())
+                .build();
     }
 }

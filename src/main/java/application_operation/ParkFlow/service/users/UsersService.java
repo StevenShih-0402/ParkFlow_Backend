@@ -4,12 +4,10 @@ import application_operation.ParkFlow.Response.SuccessResponse;
 import application_operation.ParkFlow.controller.users.payload.UserCreateRq;
 import application_operation.ParkFlow.controller.users.payload.UserLoginRq;
 import application_operation.ParkFlow.dao.users.UserDao;
-import application_operation.ParkFlow.dto.users.create.UserCreateDto;
-import application_operation.ParkFlow.dto.users.create.UserLoginDto;
+import application_operation.ParkFlow.dto.users.UserCreateDto;
+import application_operation.ParkFlow.dto.users.UserLoginDto;
 import application_operation.ParkFlow.entity.UserEntity;
 import application_operation.ParkFlow.enums.ResponseCodeEnum;
-import application_operation.ParkFlow.enums.RoleNameEnum;
-import application_operation.ParkFlow.exception.HandleException;
 import application_operation.ParkFlow.jwtToken.JwtUtil;
 import application_operation.ParkFlow.service.ValidUtils;
 import lombok.RequiredArgsConstructor;
@@ -29,10 +27,7 @@ public class UsersService {
         UserCreateDto userCreateDto = new UserCreateDto();
         BeanUtils.copyProperties(userCreateRq, userCreateDto);
 
-        validUtils.validateChineseName(userCreateDto.getChineseName());  // ChineseName 驗證
-        validUtils.validateEnglishName(userCreateDto.getEnglishName());  // EnglishName 驗證
-        validUtils.validateEmail(userCreateDto.getEmail());  // Email 重複註冊驗證
-        validUtils.validateCellphone(userCreateDto.getCellphone());  // 電話號碼格式驗證
+        validUtils.validateEmailHasRegistered(userCreateDto.getEmail());  // Email 重複註冊驗證
 
         UserEntity savedUser = userDao.saveUser(userCreateDto);
 
@@ -44,7 +39,7 @@ public class UsersService {
             savedUser.getCellphone(),
             savedUser.getCarNumber(),
             savedUser.getCarType(),
-            RoleNameEnum.getRoleNameById(savedUser.getRoleId())
+            userDao.findRoleName(savedUser.getRoleId())
         );
 
         return SuccessResponse.<String>builder()
@@ -63,7 +58,8 @@ public class UsersService {
         if(!userDao.existEmail(userLoginDto.getEmail())){
             return SuccessResponse.<String>builder()
                     .code(ResponseCodeEnum.REGISTER_REQ.getResponseCode())// 0001
-                    .data("找不到對應的使用者，請註冊新用戶。")
+                    .message("找不到對應的使用者，請註冊新用戶。")
+                    .data(null)
                     .build();
         }
 
@@ -78,7 +74,7 @@ public class UsersService {
                 userData.getCellphone(),
                 userData.getCarNumber(),
                 userData.getCarType(),
-                RoleNameEnum.getRoleNameById(userData.getRoleId())
+                userDao.findRoleName(userData.getRoleId())
         );
 
         return SuccessResponse.<String>builder()

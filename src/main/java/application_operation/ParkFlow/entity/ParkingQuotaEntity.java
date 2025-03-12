@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -15,7 +16,8 @@ import java.time.LocalDateTime;
 public class ParkingQuotaEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "parking_quota_seq_gen")
+    @SequenceGenerator(name = "parking_quota_seq_gen", sequenceName = "SEQ_PARKING_QUOTA", allocationSize = 1)
     private Integer id;
 
     @Column(name = "WEEK_START_DATE")
@@ -24,9 +26,9 @@ public class ParkingQuotaEntity {
     @Column(name = "TOTAL_SLOTS")
     private Integer totalSlots;
 
-    @Column(name = "CREATED_AT")
+    @Column(name = "CREATED_AT", insertable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "UPDATED_AT")
+    @Column(name = "UPDATED_AT", insertable = false)
     private LocalDateTime updatedAt;
 }

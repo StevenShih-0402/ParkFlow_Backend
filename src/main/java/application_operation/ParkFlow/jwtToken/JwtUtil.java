@@ -1,7 +1,6 @@
 package application_operation.ParkFlow.jwtToken;
 
 import application_operation.ParkFlow.dto.UsersBaseDto;
-import application_operation.ParkFlow.enums.RoleNameEnum;
 import application_operation.ParkFlow.exception.JwtTokenException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;

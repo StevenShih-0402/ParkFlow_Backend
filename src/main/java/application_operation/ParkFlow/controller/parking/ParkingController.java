@@ -2,6 +2,7 @@ package application_operation.ParkFlow.controller.parking;
 
 import application_operation.ParkFlow.Response.SuccessResponse;
 import application_operation.ParkFlow.controller.parking.payload.ParkinRequestCreateRq;
+import application_operation.ParkFlow.controller.parking.payload.ParkingQuotaCreateRq;
 import application_operation.ParkFlow.controller.parking.payload.ParkingRequestUpdateRq;
 import application_operation.ParkFlow.controller.parking.payload.QueryUserParkingRequestRq;
 import application_operation.ParkFlow.dto.parking.create.ParkingRequestDto;
@@ -49,5 +50,11 @@ public class ParkingController {
         return ResponseEntity.ok(SuccessResponse.<QueryUserParkingRequestDto>builder()
                 .data(queryUserParkingRequestDto)
                 .build());
+    }
+
+    @Operation(summary = "新增下週停車數量" ,description = "新增下週停車數量")
+    @PostMapping(value = "create-parking-quota")
+    public ResponseEntity<SuccessResponse<Integer>> create(@Valid @RequestBody ParkingQuotaCreateRq parkingQuotaCreateRq) {
+        return ResponseEntity.ok(parkingService.createParkingQuota(parkingQuotaCreateRq));
     }
 }
