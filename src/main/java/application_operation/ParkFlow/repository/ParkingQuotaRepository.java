@@ -27,7 +27,7 @@ public interface ParkingQuotaRepository extends JpaRepository<ParkingQuotaEntity
 
     @Query(
             value = """
-                    "SELECT
+                     SELECT
                         CASE WHEN COUNT(*) > 0
                             THEN 1
                             ELSE 0
@@ -35,7 +35,7 @@ public interface ParkingQuotaRepository extends JpaRepository<ParkingQuotaEntity
                      FROM
                         PARKING_QUOTA
                      WHERE
-                        WEEK_START_DATE = :localDateTime AND ID != :id"
+                        WEEK_START_DATE = :localDateTime AND ID != :id
                     """, nativeQuery = true)
-    Boolean existsByWeekStartDateExceptSelf(Integer id, LocalDateTime localDateTime);
+    Integer existsByWeekStartDateExceptSelf(Integer id, LocalDateTime localDateTime);
 }

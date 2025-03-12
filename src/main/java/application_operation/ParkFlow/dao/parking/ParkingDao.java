@@ -8,11 +8,13 @@ import application_operation.ParkFlow.dto.parking.queryParkingRequest.QueryParki
 import application_operation.ParkFlow.dto.parking.queryUserParkingRequest.QueryUserParkingRequestDto;
 import application_operation.ParkFlow.dto.parking.queryParkingRequest.ReParkingRequestDto;
 import application_operation.ParkFlow.dto.parking.queryUserParkingRequest.ReUserParkingRequestDto;
+import application_operation.ParkFlow.dto.parking.update.ParkingQuotaUpdateDto;
 import application_operation.ParkFlow.dto.parking.update.ParkingRequestUpdateDto;
 import application_operation.ParkFlow.dto.parking.update.UpdateParkingRequestDto;
 import application_operation.ParkFlow.entity.ParkingQuotaEntity;
 import application_operation.ParkFlow.entity.ParkingRequestEntity;
 import application_operation.ParkFlow.enums.ParkingRequestEnum;
+import application_operation.ParkFlow.exception.HandleException;
 import application_operation.ParkFlow.repository.ParkingQuotaRepository;
 import application_operation.ParkFlow.repository.ParkingRequestRepository;
 import lombok.RequiredArgsConstructor;
@@ -39,8 +41,16 @@ public class ParkingDao {
         return parkingRequestRepository.queryParkingRequestById(parkingRequestUpdateDto.getId());
     }
 
+    public Boolean existsByParkingQuotaId(Integer id){
+        return parkingQuotaRepository.existsById(id);
+    }
+
     public Boolean existsByWeekStartDate(LocalDateTime inputDateTime){
         return parkingQuotaRepository.existsByWeekStartDate(inputDateTime);
+    }
+
+    public Boolean existsByWeekStartDateExceptSelf(Integer id, LocalDateTime inputDateTime){
+        return parkingQuotaRepository.existsByWeekStartDateExceptSelf(id, inputDateTime) == 1;
     }
 
     @Transactional(readOnly = true)
@@ -96,10 +106,21 @@ public class ParkingDao {
 
     public ParkingQuotaEntity saveParkingQuota(ParkingQuotaCreateDto parkingQuotaCreateDto){
         ParkingQuotaEntity parkingQuotaEntity = new ParkingQuotaEntity();
+
         parkingQuotaEntity.setWeekStartDate(parkingQuotaCreateDto.getWeekStartDate());
         parkingQuotaEntity.setTotalSlots(parkingQuotaCreateDto.getTotalSlots());
 
         return parkingQuotaRepository.save(parkingQuotaEntity);
+    }
+
+    public ParkingQuotaEntity updateParkingQuota(ParkingQuotaUpdateDto parkingQuotaUpdateDto){
+        ParkingQuotaEntity parkingQuota = new ParkingQuotaEntity();
+
+        parkingQuota.setId(parkingQuotaUpdateDto.getId());
+        parkingQuota.setWeekStartDate(parkingQuotaUpdateDto.getWeekStartDate());
+        parkingQuota.setTotalSlots(parkingQuotaUpdateDto.getTotalSlots());
+
+        return parkingQuotaRepository.save(parkingQuota);
     }
 
     public UpdateParkingRequestDto updateParkingRequest(
@@ -169,7 +190,7 @@ public class ParkingDao {
 
     @Transactional(readOnly = true)
     public Integer findParkingQuotaByWeekStartDate(LocalDateTime weekStartDate) {
-        ParkingQuotaEntity entities = pargetTotalSlotsRepository.findByWeekStartDate(weekStartDate);
+        ParkingQuotaEntity entities = parkingQuotaRepository.findByWeekStartDate(weekStartDate);
 
         return entities.getTotalSlots();
     }

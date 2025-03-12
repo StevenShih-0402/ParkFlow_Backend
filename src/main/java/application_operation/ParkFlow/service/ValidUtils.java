@@ -51,4 +51,13 @@ public class ValidUtils {
             throw new HandleException("日期資料不能和此資料以外的內容重複。");
         }
     }
+
+    // 停車上限資料不存在
+    public void validateNotExistsByParkingQuotaId(Integer id){
+
+        // 資料庫是否有對應的資料
+        if(!parkingDao.existsByParkingQuotaId(id)){
+            throw new HandleException("資料庫找不到 id 對應的內容。");
+        }
+    }
 }
