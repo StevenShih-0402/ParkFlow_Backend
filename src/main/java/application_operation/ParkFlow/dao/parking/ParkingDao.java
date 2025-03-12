@@ -32,8 +32,11 @@ public class ParkingDao {
     private final ParkingQuotaRepository parkingQuotaRepository;
 
     public List<ParkingRequestEntity> findParkingRequestById (ParkingRequestUpdateDto parkingRequestUpdateDto) {
-
         return parkingRequestRepository.queryParkingRequestById(parkingRequestUpdateDto.getId());
+    }
+
+    public Boolean existsByWeekStartDate(LocalDateTime inputDateTime){
+        return parkingQuotaRepository.existsByWeekStartDate(inputDateTime);
     }
 
     public Boolean findParkingRequestByApplicantId(

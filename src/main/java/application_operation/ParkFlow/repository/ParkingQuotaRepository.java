@@ -20,4 +20,6 @@ public interface ParkingQuotaRepository extends JpaRepository<ParkingQuotaEntity
                         WEEK_START_DATE = :weekStartDate
                     """, nativeQuery = true)
     List<ParkingQuotaEntity> getTotalSlots(@Param("weekStartDate") LocalDateTime weekStartDate);
+
+    Boolean existsByWeekStartDate(LocalDateTime localDateTime);
 }

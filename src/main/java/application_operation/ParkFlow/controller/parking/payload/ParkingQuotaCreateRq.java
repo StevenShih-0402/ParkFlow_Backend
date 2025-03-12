@@ -7,7 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
@@ -15,8 +15,8 @@ import java.time.LocalDate;
 public class ParkingQuotaCreateRq {
 
     @NotNull
-    @Schema(title = "下週開始日期", example = "2025-03-17")
-    private LocalDate weekStartDate;
+    @Schema(title = "下週開始日期", example = "2025-03-17T00:00:00")
+    private LocalDateTime weekStartDate;
 
     @NotNull
     @Positive

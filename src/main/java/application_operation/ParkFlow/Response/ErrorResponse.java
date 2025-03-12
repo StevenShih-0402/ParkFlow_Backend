@@ -11,7 +11,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ErrorResponse {
-    private String errorCode;
+    private String code;
 
     @Builder.Default
     private String message = "Error";

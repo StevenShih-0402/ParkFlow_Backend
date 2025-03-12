@@ -5,13 +5,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
 public class ParkingQuotaCreateDto {
-    private LocalDate weekStartDate;
+    private LocalDateTime weekStartDate;
     private Integer totalSlots;
 }

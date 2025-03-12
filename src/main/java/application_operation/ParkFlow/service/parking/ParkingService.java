@@ -249,6 +249,7 @@ public class ParkingService {
         BeanUtils.copyProperties(parkingQuotaCreateRq, parkingQuotaCreateDto);
 
         validUtils.validateAfterToday(parkingQuotaCreateDto.getWeekStartDate());
+        validUtils.validateDateNotRepeat(parkingQuotaCreateDto.getWeekStartDate());
 
         ParkingQuotaEntity saveEntity = parkingDao.saveParkingQuota(parkingQuotaCreateDto);
 

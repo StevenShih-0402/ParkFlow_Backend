@@ -18,7 +18,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ErrorResponse
                         .builder()
-                        .errorCode("9000")
+                        .code("9000")
                         .message(ex.getMessage())
                         .data(null)
                         .build()
@@ -30,7 +30,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ErrorResponse
                         .builder()
-                        .errorCode("9000")
+                        .code("9000")
                         .message(ex.getMessage())
                         .data(null)
                         .build()
@@ -42,7 +42,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ErrorResponse
                         .builder()
-                        .errorCode("9000")
+                        .code("9000")
                         .message(ex.getMessage())
                         .data(null)
                         .build()
@@ -54,7 +54,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ErrorResponse
                         .builder()
-                        .errorCode("9000")
+                        .code("9000")
                         .message(ex.getMessage())
                         .data(null)
                         .build()
@@ -66,7 +66,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ErrorResponse
                         .builder()
-                        .errorCode("9000")
+                        .code("9000")
                         .message(ex.getBindingResult().getAllErrors().get(0).getDefaultMessage())  // BindingResult 包含所有驗證失敗的錯誤訊息，AllErrors 是一個 List，包含所有錯誤訊息物件，這邊取第一個錯誤(通常只有一個)，DefaultMessage 是預設的錯誤訊息。
                         .data(null)
                         .build()
@@ -79,8 +79,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ErrorResponse
                         .builder()
-                        .errorCode("9000")
-                        .message("資料格式錯誤，請檢查您的輸入是否有包含但不限於以下狀況：1. 日期資料不符合 YYYY-MM-DD。2. 缺少逗號、括號、引號或其他結構錯誤。3. 輸入的資料格式與欄位不符。4. 使用了不支援的編碼或特殊字符。")
+                        .code("9000")
+                        .message("資料格式錯誤，請檢查您的輸入是否有包含但不限於以下狀況：1. 日期資料不符合 YYYY-MM-DDTHH:MM:SS。2. 缺少逗號、括號、引號或其他結構錯誤。3. 輸入的資料格式與欄位不符。4. 使用了不支援的編碼或特殊字符。")
                         .data(null)
                         .build()
                 );
