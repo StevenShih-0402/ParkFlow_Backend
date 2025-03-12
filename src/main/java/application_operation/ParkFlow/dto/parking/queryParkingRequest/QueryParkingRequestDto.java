@@ -1,18 +1,16 @@
-package application_operation.ParkFlow.dto.parking.queryUserParkingRequest;
+package application_operation.ParkFlow.dto.parking.queryParkingRequest;
 
-import application_operation.ParkFlow.enums.ParkingRequestEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Data
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-public class QueryUserParkingRequestDto {
+public class QueryParkingRequestDto {
     private LocalDateTime weekStartDate;
 }

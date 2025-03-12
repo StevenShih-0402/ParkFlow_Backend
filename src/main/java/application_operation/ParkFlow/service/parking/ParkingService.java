@@ -3,6 +3,7 @@ package application_operation.ParkFlow.service.parking;
 import application_operation.ParkFlow.config.EmailConfig;
 import application_operation.ParkFlow.controller.parking.payload.ParkinRequestCreateRq;
 import application_operation.ParkFlow.controller.parking.payload.ParkingRequestUpdateRq;
+import application_operation.ParkFlow.controller.parking.payload.QueryParkingRequestRq;
 import application_operation.ParkFlow.controller.parking.payload.QueryUserParkingRequestRq;
 import application_operation.ParkFlow.dao.users.UserDao;
 import application_operation.ParkFlow.dto.UsersBaseDto;
@@ -10,16 +11,21 @@ import application_operation.ParkFlow.dto.mail.EmailDto;
 import application_operation.ParkFlow.dto.mail.SendEmailDto;
 import application_operation.ParkFlow.dto.parking.create.ParkingRequestCreateDto;
 import application_operation.ParkFlow.dto.parking.create.ParkingRequestDto;
+import application_operation.ParkFlow.dto.parking.queryParkingRequest.QueryParkingRequestDto;
 import application_operation.ParkFlow.dto.parking.queryUserParkingRequest.QueryUserAndRoleDto;
 import application_operation.ParkFlow.dto.parking.queryUserParkingRequest.QueryUserParkingRequestDto;
+import application_operation.ParkFlow.dto.parking.queryParkingRequest.ReParkingRequestDto;
+import application_operation.ParkFlow.dto.parking.queryUserParkingRequest.ReUserParkingRequestDto;
 import application_operation.ParkFlow.dto.parking.update.ParkingRequestUpdateDto;
 import application_operation.ParkFlow.dto.parking.update.UpdateParkingRequestDto;
 import application_operation.ParkFlow.entity.ParkingRequestEntity;
+import application_operation.ParkFlow.enums.ParkingRequestEnum;
 import application_operation.ParkFlow.enums.RoleNameEnum;
 import application_operation.ParkFlow.exception.HandleException;
 import application_operation.ParkFlow.jwtToken.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.relational.core.sql.In;
 import org.springframework.stereotype.Service;
 import application_operation.ParkFlow.dao.parking.ParkingDao;
 
@@ -207,8 +213,7 @@ public class ParkingService {
         return updateParkingRequestDto;
     }
 
-
-    public QueryUserParkingRequestDto queryUserParkingRequest(QueryUserParkingRequestRq queryUserParkingRequestRq) {
+    public ReUserParkingRequestDto queryUserParkingRequest(QueryUserParkingRequestRq queryUserParkingRequestRq) {
 
         // Jwt Token 驗證
         jwtUtil.validateToken();
@@ -221,7 +226,46 @@ public class ParkingService {
             throw new HandleException("Permission Denied.");
         }
 
+        // Rq -> Dto
+        QueryUserParkingRequestDto queryUserParkingRequestDto = QueryUserParkingRequestDto.builder()
+                .weekStartDate(queryUserParkingRequestRq.getWeekStartDate())
+                .build();
+
         // 搜尋結果
-        return parkingDao.queryUserParkingRequest(queryUserParkingRequestRq, usersBaseDto);
+        return parkingDao.findUserParkingRequest(queryUserParkingRequestDto, usersBaseDto);
+    }
+
+    public ReParkingRequestDto queryFmParkingRequest(QueryParkingRequestRq queryParkingRequestRq) {
+
+        // Jwt Token 驗證
+        jwtUtil.validateToken();
+
+        // 取得使用者個人資料
+        UsersBaseDto usersBaseDto = jwtUtil.getUserBase();
+
+        // 驗證是不是FM
+        if(!userDao.findUsersAndRoleById(usersBaseDto).getRoleName().equals(RoleNameEnum.FM.name())) {
+            throw new HandleException("Permission Denied.");
+        }
+
+        // Rq -> Dto
+        QueryParkingRequestDto queryParkingRequestDto = QueryParkingRequestDto.builder()
+                .weekStartDate(queryParkingRequestRq.getWeekStartDate())
+                .build();
+
+        List<ReParkingRequestDto.parkingRequest> parkingRequest = parkingDao.findParkingRequest(queryParkingRequestDto);
+        Integer totalSlots = parkingDao.findParkingQuotaByWeekStartDate(queryParkingRequestDto.getWeekStartDate());
+        int parkingRequestCount = (int) parkingRequest.stream()
+                .filter(x -> x.getStatus().equals(ParkingRequestEnum.APPROVED.name()) || x.getStatus().equals(ParkingRequestEnum.REVIEW.name()))
+                .count();
+        Integer remainingQuantity = totalSlots - parkingRequestCount;
+
+        // 搜尋結果
+        ReParkingRequestDto reParkingRequestDto = new ReParkingRequestDto();
+        reParkingRequestDto.setParkingRequestList(parkingRequest);
+        reParkingRequestDto.setTotalSlots(totalSlots);
+        reParkingRequestDto.setRemainingQuantity(remainingQuantity);
+
+        return reParkingRequestDto;
     }
 }
