@@ -42,4 +42,13 @@ public class ValidUtils {
             throw new HandleException("日期資料不能重複。");
         }
     }
+
+    // 日期
+    public void validateDateNotRepeatExceptSelf(Integer id, LocalDateTime inputDate){
+
+        // 日期是否有和自己以外的資料重複
+        if(parkingDao.existsByWeekStartDateExceptSelf(id, inputDate)){
+            throw new HandleException("日期資料不能和此資料以外的內容重複。");
+        }
+    }
 }
