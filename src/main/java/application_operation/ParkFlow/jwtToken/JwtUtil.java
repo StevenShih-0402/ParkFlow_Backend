@@ -48,19 +48,24 @@ public class JwtUtil {
         return token;
     }
 
+    // 從 Authorization 標頭(authHeader) 取出 Token
+    public String extractTokenFromAuthHeader(){
+        ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+
+        HttpServletRequest request = attrs.getRequest();
+        String authHeader = request.getHeader("Authorization");
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new JwtTokenException("Missing or invalid Authorization header");
+        }
+
+        return extractToken(authHeader);
+    }
+
     // 驗證 Token
     public void validateToken() {
         try {
-            ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-
-            HttpServletRequest request = attrs.getRequest();
-            String authHeader = request.getHeader("Authorization");
-
-            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-                throw new JwtTokenException("Missing or invalid Authorization header");
-            }
-
-            String token = extractToken(authHeader);
+            String token = extractTokenFromAuthHeader();
             if (blacklistedTokens.contains(token)) {
                 throw new JwtTokenException("Invalid JWT token");
             }
