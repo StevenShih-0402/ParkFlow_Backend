@@ -103,4 +103,27 @@ public interface ParkingRequestRepository extends JpaRepository<ParkingRequestEn
                     """, nativeQuery = true)
     List<Object[]> findPringkRequestAndUserById(@Param("id") Integer id);
 
+    @Query(
+            value = """
+                    SELECT
+                        r.APPLICATION_TIME as requestTime,
+                        u.CHINESE_NAME as chineseName,
+                        r.CAR_TYPE as carType,
+                        r.CAR_NUMBER as carNumber,
+                        r.CELLPHONE as cellphone,
+                        r.PARKING_SLOT_NUMBER as parkingSlotNumber,
+                        r.STATUS as status
+                    FROM
+                        USERS u
+                    INNER JOIN
+                        PARKING_REQUEST r
+                    ON
+                        u.ID = r.APPLICANT_ID
+                    WHERE
+                        r.WEEK_START_DATE = :weekStartDate
+                    """, nativeQuery = true
+    )
+    List<Object[]> queryParkingRequestByFmId(
+            @Param("weekStartDate") LocalDateTime weekStartDate
+    );
 }

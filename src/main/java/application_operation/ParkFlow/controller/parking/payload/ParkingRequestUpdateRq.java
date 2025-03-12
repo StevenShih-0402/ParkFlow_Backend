@@ -8,11 +8,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serializable;
+
 @Data
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ParkingRequestUpdateRq {
+public class ParkingRequestUpdateRq implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     @NotNull
     @Schema(title = "申請單編號", description = "申請單編號", example = "1")

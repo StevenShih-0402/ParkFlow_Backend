@@ -10,6 +10,8 @@ import java.util.List;
 
 public interface ParkingQuotaRepository extends JpaRepository<ParkingQuotaEntity, Integer> {
 
+    ParkingQuotaEntity findByWeekStartDate(LocalDateTime weekStartDate);
+
     @Query(
             value = """
                     SELECT
