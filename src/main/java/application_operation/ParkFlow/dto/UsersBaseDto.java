@@ -10,12 +10,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UsersBaseDto {
-    private String chineseName;
-    private String englishName;
     private String email;
-    private String cellphone;
-    private String carNumber;
-    private String carType;
     private Integer userId;
     private String roleName;
 }

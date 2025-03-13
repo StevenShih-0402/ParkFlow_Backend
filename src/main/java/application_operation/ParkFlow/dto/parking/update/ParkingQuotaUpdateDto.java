@@ -11,6 +11,5 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class ParkingQuotaUpdateDto {
     private Integer id;
-    private LocalDateTime weekStartDate;
     private Integer totalSlots;
 }

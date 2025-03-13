@@ -26,7 +26,7 @@ public class UserEntity {
     @Column(name = "ENGLISH_NAME")
     private String englishName;
 
-    @Column(name = "EMAIL")
+    @Column(name = "EMAIL", updatable = false)
     private String email;
 
     @Column(name = "CELLPHONE")
@@ -41,7 +41,7 @@ public class UserEntity {
     @Column(name = "ROLE_ID", insertable = false)
     private Integer roleId = 1;
 
-    @Column(name = "CREATED_AT", insertable = false)
+    @Column(name = "CREATED_AT", insertable = false, updatable = false)
     private LocalDateTime createAt;
 
     @Column(name = "UPDATED_AT", insertable = false)

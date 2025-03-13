@@ -143,7 +143,7 @@ public class ParkingService {
                     """, parkingRequestDto.getApplicationTime(),
                     parkingRequestDto.getCarNumber(),
                     parkingRequestDto.getCarType(),
-                    usersBaseDto.getEnglishName(),
+                    userDao.findEnglishNameById(usersBaseDto.getUserId()),
                     parkingRequestDto.getCellPhone()));
 
 
@@ -282,21 +282,20 @@ public class ParkingService {
         UsersBaseDto usersBaseDto = jwtUtil.getUserBase();
 
         // 檢查權限為 FM
-        if(!usersBaseDto.getRoleName().equals(RoleNameEnum.FM.name())) {
-            throw new HandleException("Permission verification error.");
-        }
+        validUtils.isFM(usersBaseDto.getRoleName());
 
         ParkingQuotaCreateDto parkingQuotaCreateDto = new ParkingQuotaCreateDto();
         BeanUtils.copyProperties(parkingQuotaCreateRq, parkingQuotaCreateDto);
 
-        validUtils.validateAfterToday(parkingQuotaCreateDto.getWeekStartDate());
-        validUtils.validateDateNotRepeat(parkingQuotaCreateDto.getWeekStartDate());
+        validUtils.notAfterToday(parkingQuotaCreateDto.getWeekStartDate());
+        validUtils.dateNotRepeat(parkingQuotaCreateDto.getWeekStartDate());
 
         ParkingQuotaEntity saveEntity = parkingDao.saveParkingQuota(parkingQuotaCreateDto);
         return saveEntity.getTotalSlots();
     }
 
     public Integer updateParkingQuota(ParkingQuotaUpdateRq parkingQuotaUpdateRq){
+
         // Jwt Token 驗證
         jwtUtil.validateToken();
 
@@ -304,15 +303,12 @@ public class ParkingService {
         UsersBaseDto usersBaseDto = jwtUtil.getUserBase();
 
         // 檢查權限為 FM
-        if(!usersBaseDto.getRoleName().equals(RoleNameEnum.FM.name())) {
-            throw new HandleException("Permission verification error.");
-        }
+        validUtils.isFM(usersBaseDto.getRoleName());
 
         ParkingQuotaUpdateDto parkingQuotaUpdateDto = new ParkingQuotaUpdateDto();
         BeanUtils.copyProperties(parkingQuotaUpdateRq, parkingQuotaUpdateDto);
 
-        validUtils.validateNotExistsByParkingQuotaId(parkingQuotaUpdateDto.getId());
-        validUtils.validateDateNotRepeatExceptSelf(parkingQuotaUpdateDto.getId(), parkingQuotaUpdateDto.getWeekStartDate());
+        validUtils.existsByParkingQuotaId(parkingQuotaUpdateDto.getId());
 
         ParkingQuotaEntity updateEntity = parkingDao.updateParkingQuota(parkingQuotaUpdateDto);
         return updateEntity.getTotalSlots();

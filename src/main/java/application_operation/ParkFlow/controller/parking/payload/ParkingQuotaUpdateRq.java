@@ -21,10 +21,6 @@ public class ParkingQuotaUpdateRq {
     private Integer id;
 
     @NotNull
-    @Schema(title = "下週開始日期", example = "2025-03-17T00:00:00")
-    private LocalDateTime weekStartDate;
-
-    @NotNull
     @Positive
     @Schema(title = "可申請的車位數量上限", example = "10")
     private Integer totalSlots;

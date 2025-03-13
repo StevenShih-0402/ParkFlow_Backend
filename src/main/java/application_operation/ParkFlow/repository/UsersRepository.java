@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -48,4 +49,18 @@ public interface UsersRepository extends JpaRepository<UserEntity, Integer> {
                     """, nativeQuery = true
     )
     List<Object[]> findUsersAndRoleByFM();
+
+    @Query(
+            value = """
+                     SELECT
+                        CASE WHEN COUNT(*) > 0
+                            THEN 1
+                            ELSE 0
+                        END
+                     FROM
+                        USERS
+                     WHERE
+                        EMAIL = :email AND ID != :id
+                    """, nativeQuery = true)
+    Integer existsByIdExceptSelf(Integer id, String email);
 }

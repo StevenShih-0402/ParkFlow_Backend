@@ -50,6 +50,16 @@ public class ParkingController {
                 .build());
     }
 
+    @Operation(summary = "FM取得停車資訊", description = "FM取得停車資訊")
+    @GetMapping(value = "query-fm-parking-request")
+    public ResponseEntity<SuccessResponse<ReParkingRequestDto>> queryFmParkingRequest(@Valid @RequestBody QueryParkingRequestRq queryParkingRequestRq) {
+        ReParkingRequestDto queryParkingRequest = parkingService.queryFmParkingRequest(queryParkingRequestRq);
+
+        return ResponseEntity.ok(SuccessResponse.<ReParkingRequestDto>builder()
+                .data(queryParkingRequest)
+                .build());
+    }
+
     @Operation(summary = "新增下週停車數量" ,description = "新增下週停車數量")
     @PostMapping(value = "create-parking-quota")
     public ResponseEntity<SuccessResponse<Integer>> createParkingQuota(@Valid @RequestBody ParkingQuotaCreateRq parkingQuotaCreateRq) {
@@ -67,16 +77,6 @@ public class ParkingController {
 
         return ResponseEntity.ok(SuccessResponse.<Integer>builder()
                 .data(updateParkingQuota)
-                .build());
-    }
-
-    @Operation(summary = "FM取得停車資訊", description = "FM取得停車資訊")
-    @GetMapping(value = "query-fm-parking-request")
-    public ResponseEntity<SuccessResponse<ReParkingRequestDto>> queryFmParkingRequest(@Valid @RequestBody QueryParkingRequestRq queryParkingRequestRq) {
-        ReParkingRequestDto queryParkingRequest = parkingService.queryFmParkingRequest(queryParkingRequestRq);
-
-        return ResponseEntity.ok(SuccessResponse.<ReParkingRequestDto>builder()
-                .data(queryParkingRequest)
                 .build());
     }
 }
