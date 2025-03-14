@@ -26,6 +26,7 @@ import application_operation.ParkFlow.exception.HandleException;
 import application_operation.ParkFlow.jwtToken.JwtUtil;
 import application_operation.ParkFlow.service.ValidUtils;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.relational.core.sql.In;
@@ -258,10 +259,11 @@ public class ParkingService {
                 .build();
 
         List<ReParkingRequestDto.parkingRequest> parkingRequest = parkingDao.findParkingRequest(queryParkingRequestDto);
-        Integer totalSlots = parkingDao.findParkingQuotaByWeekStartDate(queryParkingRequestDto.getWeekStartDate());
+        ParkingQuotaEntity entity = parkingDao.findParkingQuotaByWeekStartDate(queryParkingRequestDto.getWeekStartDate());
         int parkingRequestCount = (int) parkingRequest.stream()
                 .filter(x -> x.getStatus().equals(ParkingRequestEnum.APPROVED.name()) || x.getStatus().equals(ParkingRequestEnum.REVIEW.name()))
                 .count();
+        Integer totalSlots = !ObjectUtils.isEmpty(entity) ? entity.getTotalSlots() : Integer.valueOf(0);
         Integer remainingQuantity = totalSlots - parkingRequestCount;
 
         // 搜尋結果
@@ -269,6 +271,7 @@ public class ParkingService {
         reParkingRequestDto.setParkingRequestList(parkingRequest);
         reParkingRequestDto.setTotalSlots(totalSlots);
         reParkingRequestDto.setRemainingQuantity(remainingQuantity);
+        reParkingRequestDto.setTotalSlotsId(entity.getId());
 
         return reParkingRequestDto;
     }
