@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ParkingRequestCreateDto {
-
     private LocalDateTime nextWeekStartDate;
     private String cellPhone;
     private String carNumber;

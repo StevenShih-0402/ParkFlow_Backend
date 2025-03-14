@@ -24,14 +24,8 @@ public class JwtUtil {
     private static final long EXPIRATION_TIME = 28800000; // 8 小時
 
     // 生成 Token
-    public String generateToken(Integer userId, String chineseName, String englishName, String email, String cellphone, String carNumber, String carType, String roleName) {
+    public String generateToken(Integer userId, String roleName) {
         return Jwts.builder()
-                .claim("chineseName", chineseName)
-                .claim("englishName", englishName)
-                .claim("email", email)
-                .claim("cellphone", cellphone)
-                .claim("carNumber", carNumber)
-                .claim("carType", carType)
                 .claim("userId", userId)
                 .claim("roleName", roleName)
                 .setIssuedAt(new Date())
@@ -99,20 +93,10 @@ public class JwtUtil {
 
     public UsersBaseDto getUserBase() {
 
-        ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-
-        HttpServletRequest request = attrs.getRequest();
-        String authHeader = request.getHeader("Authorization");
-        String token = extractToken(authHeader);
+        String token = extractTokenFromAuthHeader();
         Claims claims = getClaimsFromToken(token);
 
         return UsersBaseDto.builder()
-                .chineseName(claims.get("chineseName", String.class))
-                .englishName(claims.get("englishName", String.class))
-                .email(claims.get("email", String.class))
-                .cellphone(claims.get("cellphone", String.class))
-                .carNumber(claims.get("carNumber", String.class))
-                .carType(claims.get("carType", String.class))
                 .userId(claims.get("userId", Integer.class))
                 .roleName(claims.get("roleName", String.class))
                 .build();

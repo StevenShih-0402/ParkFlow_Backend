@@ -5,7 +5,10 @@ import application_operation.ParkFlow.dto.mail.SendEmailDto;
 import application_operation.ParkFlow.dto.parking.queryUserParkingRequest.QueryUserAndRoleDto;
 import application_operation.ParkFlow.dto.users.UserCreateDto;
 import application_operation.ParkFlow.dto.users.UserLoginDto;
+import application_operation.ParkFlow.dto.users.UserQueryDto;
+import application_operation.ParkFlow.dto.users.UserUpdateDto;
 import application_operation.ParkFlow.entity.UserEntity;
+import application_operation.ParkFlow.exception.HandleException;
 import application_operation.ParkFlow.repository.RolesRepository;
 import application_operation.ParkFlow.repository.UsersRepository;
 import lombok.RequiredArgsConstructor;
@@ -31,27 +34,56 @@ public class UserDao {
         return rolesRepository.findById(roleId).get().getRoleName();
     }
 
-    public UserEntity saveUser(UserCreateDto userCreateDto){
-        UserEntity userEntity = convertToEntity(userCreateDto);
-        return usersRepository.save(userEntity);
-    }
+//    public Boolean existsByUserId(Integer id){
+//        return usersRepository.existsById(id);
+//    }
+//
+//    public Boolean existEmailExceptSelf(Integer id, String email){
+//        return usersRepository.existsByIdExceptSelf(id, email) == 1;
+//    }
 
     public UserEntity queryUserByEmail(UserLoginDto userLoginDto){
         return usersRepository.findByEmail(userLoginDto.getEmail());
     }
 
-    public UserEntity convertToEntity(UserCreateDto userCreateDto){
-        UserEntity userEntity = new UserEntity();
-
-        userEntity.setChineseName(userCreateDto.getChineseName());
-        userEntity.setEnglishName(userCreateDto.getEnglishName());
-        userEntity.setEmail(userCreateDto.getEmail());
-        userEntity.setCellphone(userCreateDto.getCellphone());
-        userEntity.setCarNumber(userCreateDto.getCarNumber());
-        userEntity.setCarType(userCreateDto.getCarType());
-
-        return userEntity;
+    public String findEnglishNameById(Integer id){
+        return usersRepository.findById(id).get().getEnglishName();
     }
+
+    public String findEmailById(Integer id){
+        return usersRepository.findById(id).get().getEmail();
+    }
+
+
+
+    public UserEntity saveUser(UserCreateDto userCreateDto){
+        UserEntity userEntity = convertToCreateEntity(userCreateDto);
+        return usersRepository.save(userEntity);
+    }
+
+    public UserQueryDto queryUser(Integer id){
+        UserEntity userEntity =  usersRepository.findById(id)
+                .orElseThrow(() -> new HandleException("資料庫找不到 id 對應的資料。"));
+
+        UserQueryDto userQueryDto = new UserQueryDto();
+
+        userQueryDto.setId(userEntity.getId());
+        userQueryDto.setChineseName(userEntity.getChineseName());
+        userQueryDto.setEnglishName(userEntity.getEnglishName());
+        userQueryDto.setEmail(userEntity.getEmail());
+        userQueryDto.setCellphone(userEntity.getCellphone());
+        userQueryDto.setCarNumber(userEntity.getCarNumber());
+        userQueryDto.setCarType(userEntity.getCarType());
+
+        return userQueryDto;
+    }
+
+    public UserEntity updateUser(UserUpdateDto userUpdateDto){
+        UserEntity userEntity = convertToUpdateEntity(userUpdateDto);
+        return usersRepository.save(userEntity);
+    }
+
+
 
     @Transactional(readOnly = true)
     public QueryUserAndRoleDto findUsersAndRoleById(UsersBaseDto usersBaseDto) {
@@ -73,5 +105,34 @@ public class UserDao {
                 .name((String) list.get(0)[0])
                 .email((String) list.get(0)[1])
                 .build();
+    }
+
+
+
+    public UserEntity convertToCreateEntity(UserCreateDto userCreateDto){
+        UserEntity userEntity = new UserEntity();
+
+        userEntity.setChineseName(userCreateDto.getChineseName());
+        userEntity.setEnglishName(userCreateDto.getEnglishName());
+        userEntity.setEmail(userCreateDto.getEmail());
+        userEntity.setCellphone(userCreateDto.getCellphone());
+        userEntity.setCarNumber(userCreateDto.getCarNumber());
+        userEntity.setCarType(userCreateDto.getCarType());
+
+        return userEntity;
+    }
+
+    public UserEntity convertToUpdateEntity(UserUpdateDto userUpdateDto){
+        UserEntity userEntity = new UserEntity();
+
+        userEntity.setId(userUpdateDto.getId());
+        userEntity.setChineseName(userUpdateDto.getChineseName());
+        userEntity.setEnglishName(userUpdateDto.getEnglishName());
+        userEntity.setEmail(userUpdateDto.getEmail());
+        userEntity.setCellphone(userUpdateDto.getCellphone());
+        userEntity.setCarNumber(userUpdateDto.getCarNumber());
+        userEntity.setCarType(userUpdateDto.getCarType());
+
+        return userEntity;
     }
 }

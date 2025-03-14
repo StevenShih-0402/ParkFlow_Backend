@@ -118,7 +118,6 @@ public class ParkingDao {
         ParkingQuotaEntity parkingQuota = new ParkingQuotaEntity();
 
         parkingQuota.setId(parkingQuotaUpdateDto.getId());
-        parkingQuota.setWeekStartDate(parkingQuotaUpdateDto.getWeekStartDate());
         parkingQuota.setTotalSlots(parkingQuotaUpdateDto.getTotalSlots());
 
         return parkingQuotaRepository.save(parkingQuota);
