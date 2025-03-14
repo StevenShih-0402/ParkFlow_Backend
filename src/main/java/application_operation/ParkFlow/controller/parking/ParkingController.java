@@ -41,7 +41,7 @@ public class ParkingController {
     }
 
     @Operation(summary = "取得一般使用者申請紀錄", description = "取得一般使用者申請紀錄")
-    @GetMapping(value = "query-user-parking-request")
+    @PostMapping(value = "queryUserParkingRequest")
     public ResponseEntity<SuccessResponse<ReUserParkingRequestDto>> queryUserParkingRequest(@Valid @RequestBody QueryUserParkingRequestRq queryUserParkingRequestRq) {
         ReUserParkingRequestDto queryUserParkingRequestDto = parkingService.queryUserParkingRequest(queryUserParkingRequestRq);
 

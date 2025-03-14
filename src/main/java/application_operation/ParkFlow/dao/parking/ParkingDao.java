@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -169,6 +170,9 @@ public class ParkingDao {
     public List<ReParkingRequestDto.parkingRequest> findParkingRequest(QueryParkingRequestDto queryParkingRequestDto) {
         List<Object[]> parkingRequestAndUsers = parkingRequestRepository.queryParkingRequestByFmId(queryParkingRequestDto.getWeekStartDate());
 
+        if(parkingRequestAndUsers.size() <= 0) {
+            return new ArrayList<>();
+        }
 
         List<ReParkingRequestDto.parkingRequest> parkingRequestList = parkingRequestAndUsers.stream().map(dto -> {
             ReParkingRequestDto.parkingRequest parkingRequest = new ReParkingRequestDto.parkingRequest();
@@ -178,7 +182,7 @@ public class ParkingDao {
             parkingRequest.setCarType(dto[2] != null ? dto[2].toString() : "");
             parkingRequest.setCarNumber(dto[3] != null ? dto[3].toString() : "");
             parkingRequest.setCellphone(dto[4] != null ? dto[4].toString() : "");
-            parkingRequest.setParkingSlotNumber(dto[5] instanceof Number ? ((Number) dto[5]).intValue() : null);
+            parkingRequest.setParkingSlotNumber(dto[5] != null ? Integer.valueOf(dto[5].toString()) : null);
             parkingRequest.setStatus(dto[6] != null ? ParkingRequestEnum.getNameByCode(dto[6].toString()) : "");
 
             return parkingRequest;
@@ -190,6 +194,10 @@ public class ParkingDao {
     @Transactional(readOnly = true)
     public Integer findParkingQuotaByWeekStartDate(LocalDateTime weekStartDate) {
         ParkingQuotaEntity entities = parkingQuotaRepository.findByWeekStartDate(weekStartDate);
+
+        if(ObjectUtils.isEmpty(entities)) {
+            return 0;
+        }
 
         return entities.getTotalSlots();
     }
