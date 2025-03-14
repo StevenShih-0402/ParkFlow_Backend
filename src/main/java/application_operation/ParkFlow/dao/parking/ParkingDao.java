@@ -76,8 +76,9 @@ public class ParkingDao {
 
         List<ParkingRequestEntity> currentRequest = parkingRequestRepository.getCurrentRequest(parkingRequestCreateDto.getNextWeekStartDate());
         List<ParkingQuotaEntity> totalSlots = parkingQuotaRepository.getTotalSlots(parkingRequestCreateDto.getNextWeekStartDate());
+        Integer totalSlots = ObjectUtils.isEmpty(parkingQuotaEntities) ? Integer.valueOf(0) : parkingQuotaEntities.get(0).getTotalSlots();
 
-        return currentRequest.size() < totalSlots.get(0).getTotalSlots();
+        return currentRequest.size() < totalSlots;
     }
 
     public ParkingRequestDto saveParkingRequest(ParkingRequestCreateDto parkingRequestCreateDto, UsersBaseDto usersBaseDto) {
