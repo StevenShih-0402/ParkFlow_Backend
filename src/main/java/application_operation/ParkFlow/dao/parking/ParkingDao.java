@@ -184,6 +184,7 @@ public class ParkingDao {
             parkingRequest.setCellphone(dto[4] != null ? dto[4].toString() : "");
             parkingRequest.setParkingSlotNumber(dto[5] != null ? Integer.valueOf(dto[5].toString()) : null);
             parkingRequest.setStatus(dto[6] != null ? ParkingRequestEnum.getNameByCode(dto[6].toString()) : "");
+            parkingRequest.setRequestId(Integer.valueOf(dto[7].toString()));
 
             return parkingRequest;
         }).toList();
@@ -192,14 +193,10 @@ public class ParkingDao {
     }
 
     @Transactional(readOnly = true)
-    public Integer findParkingQuotaByWeekStartDate(LocalDateTime weekStartDate) {
+    public ParkingQuotaEntity findParkingQuotaByWeekStartDate(LocalDateTime weekStartDate) {
         ParkingQuotaEntity entities = parkingQuotaRepository.findByWeekStartDate(weekStartDate);
 
-        if(ObjectUtils.isEmpty(entities)) {
-            return 0;
-        }
-
-        return entities.getTotalSlots();
+        return entities;
     }
 
     /**

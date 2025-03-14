@@ -13,6 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ReParkingRequestDto {
+    private Integer totalSlotsId;
 
     private Integer totalSlots;
 
@@ -25,6 +26,7 @@ public class ReParkingRequestDto {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class parkingRequest {
+        private Integer requestId;
         private LocalDateTime requestTime;
         private String chineseName;
         private String carType;
