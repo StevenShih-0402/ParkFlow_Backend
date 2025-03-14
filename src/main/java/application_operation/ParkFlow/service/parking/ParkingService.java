@@ -263,15 +263,16 @@ public class ParkingService {
         int parkingRequestCount = (int) parkingRequest.stream()
                 .filter(x -> x.getStatus().equals(ParkingRequestEnum.APPROVED.name()) || x.getStatus().equals(ParkingRequestEnum.REVIEW.name()))
                 .count();
-        Integer totalSlots = !ObjectUtils.isEmpty(entity) ? entity.getTotalSlots() : Integer.valueOf(0);
+        Integer totalSlots = ObjectUtils.isEmpty(entity) ? Integer.valueOf(0) : entity.getTotalSlots();
         Integer remainingQuantity = totalSlots - parkingRequestCount;
+        Integer totalSlotId = ObjectUtils.isEmpty(entity) ? null : entity.getId();
 
         // 搜尋結果
         ReParkingRequestDto reParkingRequestDto = new ReParkingRequestDto();
         reParkingRequestDto.setParkingRequestList(parkingRequest);
         reParkingRequestDto.setTotalSlots(totalSlots);
         reParkingRequestDto.setRemainingQuantity(remainingQuantity);
-        reParkingRequestDto.setTotalSlotsId(entity.getId());
+        reParkingRequestDto.setTotalSlotsId(totalSlotId);
 
         return reParkingRequestDto;
     }
