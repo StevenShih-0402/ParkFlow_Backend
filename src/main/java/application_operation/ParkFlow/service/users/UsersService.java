@@ -2,24 +2,17 @@ package application_operation.ParkFlow.service.users;
 
 import application_operation.ParkFlow.controller.users.payload.UserCreateRq;
 import application_operation.ParkFlow.controller.users.payload.UserLoginRq;
-import application_operation.ParkFlow.controller.users.payload.UserLogoutRq;
 import application_operation.ParkFlow.controller.users.payload.UserUpdateRq;
 import application_operation.ParkFlow.dao.users.UserDao;
 import application_operation.ParkFlow.dto.UsersBaseDto;
 import application_operation.ParkFlow.dto.users.*;
 import application_operation.ParkFlow.entity.UserEntity;
 import application_operation.ParkFlow.enums.ResponseCodeEnum;
-import application_operation.ParkFlow.enums.RoleNameEnum;
-import application_operation.ParkFlow.exception.HandleException;
-import application_operation.ParkFlow.exception.JwtTokenException;
 import application_operation.ParkFlow.jwtToken.JwtUtil;
 import application_operation.ParkFlow.service.ValidUtils;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 @Service
 @RequiredArgsConstructor

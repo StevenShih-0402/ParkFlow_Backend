@@ -21,7 +21,7 @@ public class RoleEntity {
     @Column(name = "ROLENAME")
     private String roleName;
 
-    @Column(name = "CREATED_AT")
+    @Column(name = "CREATED_AT", updatable = false)
     private LocalDateTime createAt;
 
     @Column(name = "UPDATED_AT")
