@@ -8,8 +8,8 @@ import application_operation.ParkFlow.dto.UsersBaseDto;
 import application_operation.ParkFlow.dto.users.*;
 import application_operation.ParkFlow.entity.UserEntity;
 import application_operation.ParkFlow.enums.ResponseCodeEnum;
+import application_operation.ParkFlow.exception.HandleException;
 import application_operation.ParkFlow.jwtToken.JwtUtil;
-import application_operation.ParkFlow.service.ValidUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -20,7 +20,6 @@ public class UsersService {
 
     private final UserDao userDao;
     private final JwtUtil jwtUtil;
-    private final ValidUtils validUtils;
 
     // 新增(註冊)使用者
     public String create(UserCreateRq userCreateRq){
@@ -28,7 +27,10 @@ public class UsersService {
         UserCreateDto userCreateDto = new UserCreateDto();
         BeanUtils.copyProperties(userCreateRq, userCreateDto);
 
-        validUtils.emailHasNotRegistered(userCreateDto.getEmail());  // Email 重複註冊驗證
+        // 信箱是否已經註冊過
+        if(userDao.existEmail(userCreateDto.getEmail())){
+            throw new HandleException("此信箱已經被註冊過。");
+        }
 
         return tokenTransfer(userDao.saveUser(userCreateDto));
     }

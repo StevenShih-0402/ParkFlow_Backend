@@ -15,10 +15,9 @@ import java.time.LocalDateTime;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-public class QueryParkingRequestRq implements Serializable {
-    private static final long serialVersionUID = 1L;
+public class QueryParkingRequestRq {
 
-    @NotNull
+    @NotNull(message = "{weekStartDate.notnull}")
     @Schema(title = "當周開始時間", description = "當周開始時間", example = "2025-03-09T00:00:00")
     private LocalDateTime weekStartDate;
 

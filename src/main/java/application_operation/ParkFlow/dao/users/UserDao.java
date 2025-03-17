@@ -12,14 +12,12 @@ import application_operation.ParkFlow.exception.HandleException;
 import application_operation.ParkFlow.repository.RolesRepository;
 import application_operation.ParkFlow.repository.UsersRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Component
-@Log4j2
 @RequiredArgsConstructor
 public class UserDao {
 
@@ -33,14 +31,6 @@ public class UserDao {
     public String findRoleName(Integer roleId){
         return rolesRepository.findById(roleId).get().getRoleName();
     }
-
-//    public Boolean existsByUserId(Integer id){
-//        return usersRepository.existsById(id);
-//    }
-//
-//    public Boolean existEmailExceptSelf(Integer id, String email){
-//        return usersRepository.existsByIdExceptSelf(id, email) == 1;
-//    }
 
     public UserEntity queryUserByEmail(UserLoginDto userLoginDto){
         return usersRepository.findByEmail(userLoginDto.getEmail());

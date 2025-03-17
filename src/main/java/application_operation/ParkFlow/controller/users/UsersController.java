@@ -3,7 +3,6 @@ package application_operation.ParkFlow.controller.users;
 import application_operation.ParkFlow.Response.SuccessResponse;
 import application_operation.ParkFlow.controller.users.payload.UserCreateRq;
 import application_operation.ParkFlow.controller.users.payload.UserLoginRq;
-import application_operation.ParkFlow.controller.users.payload.UserLogoutRq;
 import application_operation.ParkFlow.controller.users.payload.UserUpdateRq;
 import application_operation.ParkFlow.dto.users.UserQueryDto;
 import application_operation.ParkFlow.enums.ResponseCodeEnum;

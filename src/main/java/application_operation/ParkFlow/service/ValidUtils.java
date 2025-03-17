@@ -2,12 +2,11 @@ package application_operation.ParkFlow.service;
 
 import application_operation.ParkFlow.dao.parking.ParkingDao;
 import application_operation.ParkFlow.dao.users.UserDao;
-import application_operation.ParkFlow.enums.RoleNameEnum;
 import application_operation.ParkFlow.exception.HandleException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
+import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 
 @Component
@@ -15,73 +14,43 @@ import java.time.LocalDateTime;
 public class ValidUtils {
 
     private final UserDao userDao;
-    private final ParkingDao parkingDao;
 
-    // 信箱
-    public void emailHasNotRegistered(String email) {
-        // 信箱是否已經註冊過
-        if(userDao.existEmail(email)){
-            throw new HandleException("此信箱已經被註冊過。");
+    // 身分驗證 - User
+    public void isUser(String roleName){
+        if(!roleName.equals(userDao.findRoleName(1))) {
+            throw new HandleException("權限驗證錯誤。");
         }
     }
-
-//    public void emailHasNotRegisteredExceptSelf(Integer id, String email){
-//
-//        // 信箱是否已經被自己以外的人註冊過
-//        if(userDao.existEmailExceptSelf(id, email)){
-//            throw new HandleException("信箱不能和此資料以外的內容重複。");
-//        }
-//    }
-
-    // 日期
-    public void notAfterToday(LocalDateTime inputDate){
-
-        LocalDateTime today = LocalDateTime.now();
-        // 日期是否在今天以後
-        if(inputDate.isBefore(today)){
-            throw new HandleException("下週開始日期必須是在今天之後的日期。");
-        }
-    }
-
-    // 日期
-    public void dateNotRepeat(LocalDateTime inputDate){
-
-        // 日期是否有重複
-        if(parkingDao.existsByWeekStartDate(inputDate)){
-            throw new HandleException("日期資料不能重複。");
-        }
-    }
-
-    // 日期
-    public void dateNotRepeatExceptSelf(Integer id, LocalDateTime inputDate){
-
-        // 日期是否有和自己以外的資料重複
-        if(parkingDao.existsByWeekStartDateExceptSelf(id, inputDate)){
-            throw new HandleException("日期資料不能和此資料以外的內容重複。");
-        }
-    }
-
-    // 停車上限資料不存在
-    public void existsByParkingQuotaId(Integer id){
-
-        // 資料庫是否有對應的資料
-        if(!parkingDao.existsByParkingQuotaId(id)){
-            throw new HandleException("資料庫找不到 id 對應的內容。");
-        }
-    }
-
-    // 使用者資料不存在
-//    public void existsByUserId(Integer id){
-//        // 資料庫是否有對應的資料
-//        if(!userDao.existsByUserId(id)){
-//            throw new HandleException("資料庫找不到 id 對應的內容。");
-//        }
-//    }
 
     // 身分驗證 - FM
     public void isFM(String roleName){
-        if(!roleName.equals(RoleNameEnum.FM.name())) {
+        if(!roleName.equals(userDao.findRoleName(2))) {
             throw new HandleException("權限驗證錯誤。");
         }
+    }
+
+    public Boolean isValidRequest(LocalDateTime now, LocalDateTime requestedDate, LocalDateTime nextWeekStartDate) {
+
+        // 計算下下週開始時間
+        LocalDateTime nextNextWeekStartDate = nextWeekStartDate.plusWeeks(1);
+
+        // 取得 "本週四 00:00"
+        LocalDateTime thisThursday = now.toLocalDate()
+                .with(DayOfWeek.THURSDAY)
+                .atStartOfDay();
+
+        // **條件 1：申請時間屬於「下週」範圍**
+        Boolean isNextWeek = !requestedDate.isBefore(nextWeekStartDate) && requestedDate.isBefore(nextNextWeekStartDate);
+
+        // **條件 2：現在時間必須在「本週四之前」才能申請「下週」**
+        Boolean isBeforeThursday = now.isBefore(thisThursday);
+
+        // **如果申請的是「下週」，必須在「本週四前」申請**
+        if (isNextWeek) {
+            return isBeforeThursday;
+        }
+
+        // **如果申請的是「下下週及以後」，則隨時可以申請**
+        return true;
     }
 }
