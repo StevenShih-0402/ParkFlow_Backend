@@ -2,6 +2,7 @@ package application_operation.ParkFlow.controller.parking;
 
 import application_operation.ParkFlow.Response.SuccessResponse;
 import application_operation.ParkFlow.controller.parking.payload.*;
+import application_operation.ParkFlow.dto.parking.create.ParkingQuotaDto;
 import application_operation.ParkFlow.dto.parking.create.ParkingRequestDto;
 import application_operation.ParkFlow.dto.parking.queryParkingRequest.ReParkingRequestDto;
 import application_operation.ParkFlow.dto.parking.queryUserParkingRequest.ReUserParkingRequestDto;
@@ -22,8 +23,8 @@ public class ParkingController {
 
     @Operation(summary = "申請停車位" ,description = "申請停車位")
     @PostMapping(value = "create-parking-request")
-    public ResponseEntity<SuccessResponse<ParkingRequestDto>> create(@Valid @RequestBody ParkinRequestCreateRq parkinRequestCreateRq) {
-        ParkingRequestDto parkingRequestDto = parkingService.create(parkinRequestCreateRq);
+    public ResponseEntity<SuccessResponse<ParkingRequestDto>> create(@Valid @RequestBody ParkingRequestCreateRq parkingRequestCreateRq) {
+        ParkingRequestDto parkingRequestDto = parkingService.create(parkingRequestCreateRq);
 
         return ResponseEntity.ok(SuccessResponse.<ParkingRequestDto>builder()
                 .data(parkingRequestDto)
@@ -62,20 +63,20 @@ public class ParkingController {
 
     @Operation(summary = "新增下週停車數量" ,description = "新增下週停車數量")
     @PostMapping(value = "create-parking-quota")
-    public ResponseEntity<SuccessResponse<Integer>> createParkingQuota(@Valid @RequestBody ParkingQuotaCreateRq parkingQuotaCreateRq) {
-        Integer parkingQuota = parkingService.createParkingQuota(parkingQuotaCreateRq);
+    public ResponseEntity<SuccessResponse<ParkingQuotaDto>> createParkingQuota(@Valid @RequestBody ParkingQuotaCreateRq parkingQuotaCreateRq) {
+        ParkingQuotaDto parkingQuota = parkingService.createParkingQuota(parkingQuotaCreateRq);
 
-        return ResponseEntity.ok(SuccessResponse.<Integer>builder()
+        return ResponseEntity.ok(SuccessResponse.<ParkingQuotaDto>builder()
                 .data(parkingQuota)
                 .build());
     }
 
     @Operation(summary = "更新下週停車數量" ,description = "更新下週停車數量")
     @PutMapping(value = "update-parking-quota")
-    public ResponseEntity<SuccessResponse<Integer>> updateParkingQuota(@Valid @RequestBody ParkingQuotaUpdateRq parkingQuotaUpdateRq) {
-        Integer updateParkingQuota = parkingService.updateParkingQuota(parkingQuotaUpdateRq);
+    public ResponseEntity<SuccessResponse<ParkingQuotaDto>> updateParkingQuota(@Valid @RequestBody ParkingQuotaUpdateRq parkingQuotaUpdateRq) {
+        ParkingQuotaDto updateParkingQuota = parkingService.updateParkingQuota(parkingQuotaUpdateRq);
 
-        return ResponseEntity.ok(SuccessResponse.<Integer>builder()
+        return ResponseEntity.ok(SuccessResponse.<ParkingQuotaDto>builder()
                 .data(updateParkingQuota)
                 .build());
     }

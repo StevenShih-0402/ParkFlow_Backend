@@ -51,9 +51,9 @@ public class ParkingRequestEntity {
     @Column(name = "REVIEW_TIME")
     private LocalDateTime reviewTime;
 
-    @Column(name = "CREATED_AT", updatable = false)//新增時間
+    @Column(name = "CREATED_AT", insertable = false, updatable = false)//新增時間
     private LocalDateTime createdAt;
 
-    @Column(name = "UPDATED_AT")//更新時間
+    @Column(name = "UPDATED_AT", insertable = false)//更新時間
     private LocalDateTime updatedAt;
 }

@@ -1,5 +1,6 @@
 package application_operation.ParkFlow.Response;
 
+import application_operation.ParkFlow.enums.ResponseCodeEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,7 +13,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 public class SuccessResponse<T> {
     @Builder.Default
-    private String code = "0000";
+    private String code = ResponseCodeEnum.SUCCESS.getResponseCode();
 
     @Builder.Default
     private String message = "Success";

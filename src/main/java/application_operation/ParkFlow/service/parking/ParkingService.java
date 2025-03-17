@@ -1,6 +1,5 @@
 package application_operation.ParkFlow.service.parking;
 
-import application_operation.ParkFlow.Response.SuccessResponse;
 import application_operation.ParkFlow.config.EmailConfig;
 import application_operation.ParkFlow.controller.parking.payload.*;
 import application_operation.ParkFlow.dao.users.UserDao;
@@ -8,6 +7,7 @@ import application_operation.ParkFlow.dto.UsersBaseDto;
 import application_operation.ParkFlow.dto.mail.EmailDto;
 import application_operation.ParkFlow.dto.mail.SendEmailDto;
 import application_operation.ParkFlow.dto.parking.create.ParkingQuotaCreateDto;
+import application_operation.ParkFlow.dto.parking.create.ParkingQuotaDto;
 import application_operation.ParkFlow.dto.parking.create.ParkingRequestCreateDto;
 import application_operation.ParkFlow.dto.parking.create.ParkingRequestDto;
 import application_operation.ParkFlow.dto.parking.queryParkingRequest.QueryParkingRequestDto;
@@ -21,7 +21,6 @@ import application_operation.ParkFlow.dto.parking.update.UpdateParkingRequestDto
 import application_operation.ParkFlow.entity.ParkingQuotaEntity;
 import application_operation.ParkFlow.entity.ParkingRequestEntity;
 import application_operation.ParkFlow.enums.ParkingRequestEnum;
-import application_operation.ParkFlow.enums.RoleNameEnum;
 import application_operation.ParkFlow.exception.HandleException;
 import application_operation.ParkFlow.jwtToken.JwtUtil;
 import application_operation.ParkFlow.service.ValidUtils;
@@ -29,7 +28,6 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.relational.core.sql.In;
 import org.springframework.stereotype.Service;
 import application_operation.ParkFlow.dao.parking.ParkingDao;
 
@@ -53,71 +51,49 @@ public class ParkingService {
     private final ValidUtils validUtils;
     private final EmailConfig emailConfig;
 
-    public boolean isValidRequest(LocalDateTime now, LocalDateTime requestedDate, LocalDateTime nextWeekStartDate) {
-
-        // 計算下下週開始時間
-        LocalDateTime nextNextWeekStartDate = nextWeekStartDate.plusWeeks(1);
-
-        // 取得 "本週四 00:00"
-        LocalDateTime thisThursday = now.toLocalDate()
-                .with(DayOfWeek.THURSDAY)
-                .atStartOfDay();
-
-        // **條件 1：申請時間屬於「下週」範圍**
-        boolean isNextWeek = !requestedDate.isBefore(nextWeekStartDate) && requestedDate.isBefore(nextNextWeekStartDate);
-
-        // **條件 2：現在時間必須在「本週四之前」才能申請「下週」**
-        boolean isBeforeThursday = now.isBefore(thisThursday);
-
-        // **如果申請的是「下週」，必須在「本週四前」申請**
-        if (isNextWeek) {
-            return isBeforeThursday;
-        }
-
-        // **如果申請的是「下下週及以後」，則隨時可以申請**
-        return true;
-    }
-
-    public ParkingRequestDto create (ParkinRequestCreateRq parkinRequestCreateRq) {
+    public ParkingRequestDto create (ParkingRequestCreateRq parkingRequestCreateRq) {
 
         // Jwt Token 驗證
         jwtUtil.validateToken();
 
-        LocalDateTime requestedDate = parkinRequestCreateRq.getNextWeekStartDate();
+        LocalDateTime requestedDate = parkingRequestCreateRq.getWeekStartDate();
         LocalDateTime now = LocalDateTime.now(); // 取得當前時間
         LocalDateTime nextWeekStartDate = LocalDateTime.now()
                 .with(DayOfWeek.SUNDAY) // 設定為這周日
                 .toLocalDate()
                 .atStartOfDay(); // 計算下週開始時間
 
-        if(!isValidRequest(now, requestedDate, nextWeekStartDate)) {
-            throw new HandleException("Exceeded application time.");
-        }
-
-        // 檢查手機號碼要10碼
-        if(!parkinRequestCreateRq.getCellPhone().matches("^\\d{10}$")){
-            throw new HandleException("Invalid format: The phone number must be 10 digits.");
+        if(!validUtils.isValidRequest(now, requestedDate, nextWeekStartDate)) {
+            throw new HandleException("如果申請的時間是「下週」，必須在「本週四前」申請；如果申請的是「下下週及以後」，則隨時可以申請。");
         }
 
         // 取得使用者個人資料
         UsersBaseDto usersBaseDto = jwtUtil.getUserBase();
 
+        // 驗證是不是一般使用者
+        validUtils.isUser(usersBaseDto.getRoleName());
+
         // Rq -> Dto
         ParkingRequestCreateDto parkingRequestCreateDto = ParkingRequestCreateDto.builder()
-                .nextWeekStartDate(parkinRequestCreateRq.getNextWeekStartDate())
-                .cellPhone(parkinRequestCreateRq.getCellPhone())
-                .carNumber(parkinRequestCreateRq.getCarNumber())
-                .carType(parkinRequestCreateRq.getCarType())
+                .weekStartDate(parkingRequestCreateRq.getWeekStartDate())
+                .cellPhone(parkingRequestCreateRq.getCellPhone())
+                .carNumber(parkingRequestCreateRq.getCarNumber())
+                .carType(parkingRequestCreateRq.getCarType())
                 .build();
+
+        // 檢查申請的日期是否已設定停車位上限
+        if(!parkingDao.existsByWeekStartDate(parkingRequestCreateDto.getWeekStartDate())){
+            throw new HandleException("此日期尚未設定停車上限，無法申請。");
+        }
 
         //檢查相同使用者是否重複申請
         if(!parkingDao.findParkingRequestByApplicantId(parkingRequestCreateDto, usersBaseDto)) {
-            throw new HandleException("Duplicate Application.");
+            throw new HandleException("使用者已申請車位，無法重複申請。");
         }
 
         //檢查申請是否到達上限
         if(!parkingDao.findParkingRequestCheckQuota(parkingRequestCreateDto)) {
-            throw new HandleException("Application limit reached.");
+            throw new HandleException("車位已被申請完畢，無法再受理申請。");
         }
 
         //寫入申請表
@@ -163,9 +139,7 @@ public class ParkingService {
         UsersBaseDto usersBaseDto = jwtUtil.getUserBase();
 
         // 檢查權限為 FM
-        if(!usersBaseDto.getRoleName().equals(RoleNameEnum.FM.name())) {
-            throw new HandleException("Permission verification error.");
-        }
+        validUtils.isFM(usersBaseDto.getRoleName());
 
         // Rq -> Dto
         ParkingRequestUpdateDto parkingRequestUpdateDto = ParkingRequestUpdateDto
@@ -174,6 +148,11 @@ public class ParkingService {
                 .status(parkingRequestUpdateRq.getStatus())
                 .parkingSlotNumber(parkingRequestUpdateRq.getParkingSlotNumber())
                 .build();
+
+        // 資料庫是否有對應的內容
+        if(!parkingDao.existsByParkingRequestId(parkingRequestUpdateDto.getId())){
+            throw new HandleException("資料庫找不到 id 對應的內容。");
+        }
 
         // 取得申請資料
         List<ParkingRequestEntity> parkingRequestEntities = parkingDao.findParkingRequestById(parkingRequestUpdateDto);
@@ -227,9 +206,7 @@ public class ParkingService {
         UsersBaseDto usersBaseDto = jwtUtil.getUserBase();
 
         // 驗證是不是一般使用者
-        if(!userDao.findUsersAndRoleById(usersBaseDto).getRoleName().equals(RoleNameEnum.USER.name())) {
-            throw new HandleException("Permission Denied.");
-        }
+        validUtils.isUser(userDao.findUsersAndRoleById(usersBaseDto).getRoleName());
 
         // Rq -> Dto
         QueryUserParkingRequestDto queryUserParkingRequestDto = QueryUserParkingRequestDto.builder()
@@ -249,9 +226,7 @@ public class ParkingService {
         UsersBaseDto usersBaseDto = jwtUtil.getUserBase();
 
         // 驗證是不是FM
-        if(!userDao.findUsersAndRoleById(usersBaseDto).getRoleName().equals(RoleNameEnum.FM.name())) {
-            throw new HandleException("Permission Denied.");
-        }
+        validUtils.isFM(userDao.findUsersAndRoleById(usersBaseDto).getRoleName());
 
         // Rq -> Dto
         QueryParkingRequestDto queryParkingRequestDto = QueryParkingRequestDto.builder()
@@ -277,7 +252,7 @@ public class ParkingService {
         return reParkingRequestDto;
     }
 
-    public Integer createParkingQuota(ParkingQuotaCreateRq parkingQuotaCreateRq){
+    public ParkingQuotaDto createParkingQuota(ParkingQuotaCreateRq parkingQuotaCreateRq){
 
         // Jwt Token 驗證
         jwtUtil.validateToken();
@@ -291,14 +266,23 @@ public class ParkingService {
         ParkingQuotaCreateDto parkingQuotaCreateDto = new ParkingQuotaCreateDto();
         BeanUtils.copyProperties(parkingQuotaCreateRq, parkingQuotaCreateDto);
 
-        validUtils.notAfterToday(parkingQuotaCreateDto.getWeekStartDate());
-        validUtils.dateNotRepeat(parkingQuotaCreateDto.getWeekStartDate());
+        // 日期是否在今天以後
+        if(parkingQuotaCreateDto.getWeekStartDate().isBefore(LocalDateTime.now())){
+            throw new HandleException("下週開始日期必須是在今天之後的日期。");
+        }
+        // 日期是否有重複
+        if(parkingDao.existsByWeekStartDate(parkingQuotaCreateDto.getWeekStartDate())){
+            throw new HandleException("日期資料不能重複。");
+        }
 
         ParkingQuotaEntity saveEntity = parkingDao.saveParkingQuota(parkingQuotaCreateDto);
-        return saveEntity.getTotalSlots();
+        return ParkingQuotaDto.builder()
+                .id(saveEntity.getId())
+                .totalSlots(saveEntity.getTotalSlots())
+                .build();
     }
 
-    public Integer updateParkingQuota(ParkingQuotaUpdateRq parkingQuotaUpdateRq){
+    public ParkingQuotaDto updateParkingQuota(ParkingQuotaUpdateRq parkingQuotaUpdateRq){
 
         // Jwt Token 驗證
         jwtUtil.validateToken();
@@ -312,9 +296,15 @@ public class ParkingService {
         ParkingQuotaUpdateDto parkingQuotaUpdateDto = new ParkingQuotaUpdateDto();
         BeanUtils.copyProperties(parkingQuotaUpdateRq, parkingQuotaUpdateDto);
 
-        validUtils.existsByParkingQuotaId(parkingQuotaUpdateDto.getId());
+        // 資料庫是否有對應的內容
+        if(!parkingDao.existsByParkingQuotaId(parkingQuotaUpdateDto.getId())){
+            throw new HandleException("資料庫找不到 id 對應的內容。");
+        }
 
         ParkingQuotaEntity updateEntity = parkingDao.updateParkingQuota(parkingQuotaUpdateDto);
-        return updateEntity.getTotalSlots();
+        return ParkingQuotaDto.builder()
+                .id(updateEntity.getId())
+                .totalSlots(updateEntity.getTotalSlots())
+                .build();
     }
 }

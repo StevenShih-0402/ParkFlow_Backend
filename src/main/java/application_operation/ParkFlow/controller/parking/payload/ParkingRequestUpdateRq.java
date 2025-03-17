@@ -14,18 +14,17 @@ import java.io.Serializable;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ParkingRequestUpdateRq implements Serializable {
-    private static final long serialVersionUID = 1L;
+public class ParkingRequestUpdateRq {
 
-    @NotNull
+    @NotNull(message = "{id.notnull}")
     @Schema(title = "申請單編號", description = "申請單編號", example = "1")
     private Integer id;
 
-    @NotNull
+    @NotNull(message = "{status.notnull}")
     @Schema(title = "審核結果", description = "審核結果", example = "APPROVED")
     private ParkingRequestEnum status;
 
-    @NotNull
+    @NotNull(message = "{parkingSlotNumber.notnull}")
     @Schema(title = "車位號碼", description = "車位號碼", example = "10")
     private Integer parkingSlotNumber;
 }

@@ -49,6 +49,7 @@ public class JwtUtil {
         HttpServletRequest request = attrs.getRequest();
         String authHeader = request.getHeader("Authorization");
 
+        // Jwt 不存在或格式錯誤
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             throw new JwtTokenException("Missing or invalid Authorization header");
         }
@@ -60,6 +61,7 @@ public class JwtUtil {
     public void validateToken() {
         try {
             String token = extractTokenFromAuthHeader();
+            // token 已經包含在黑名單
             if (blacklistedTokens.contains(token)) {
                 throw new JwtTokenException("Invalid JWT token");
             }

@@ -15,15 +15,16 @@ import java.time.LocalDateTime;
 public class RoleEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "role_seq_gen")
+    @SequenceGenerator(name = "role_seq_gen", sequenceName = "SEQ_ROLE", allocationSize = 1)
     private Integer id;
 
     @Column(name = "ROLENAME")
     private String roleName;
 
-    @Column(name = "CREATED_AT", updatable = false)
+    @Column(name = "CREATED_AT", insertable = false, updatable = false)
     private LocalDateTime createAt;
 
-    @Column(name = "UPDATED_AT")
+    @Column(name = "UPDATED_AT", insertable = false)
     private LocalDateTime updateAt;
 }

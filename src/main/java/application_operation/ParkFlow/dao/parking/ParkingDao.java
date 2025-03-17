@@ -14,7 +14,6 @@ import application_operation.ParkFlow.dto.parking.update.UpdateParkingRequestDto
 import application_operation.ParkFlow.entity.ParkingQuotaEntity;
 import application_operation.ParkFlow.entity.ParkingRequestEntity;
 import application_operation.ParkFlow.enums.ParkingRequestEnum;
-import application_operation.ParkFlow.exception.HandleException;
 import application_operation.ParkFlow.repository.ParkingQuotaRepository;
 import application_operation.ParkFlow.repository.ParkingRequestRepository;
 import lombok.RequiredArgsConstructor;
@@ -46,6 +45,10 @@ public class ParkingDao {
         return parkingQuotaRepository.existsById(id);
     }
 
+    public Boolean existsByParkingRequestId(Integer id){
+        return parkingRequestRepository.existsById(id);
+    }
+
     public Boolean existsByWeekStartDate(LocalDateTime inputDateTime){
         return parkingQuotaRepository.existsByWeekStartDate(inputDateTime);
     }
@@ -62,7 +65,7 @@ public class ParkingDao {
 
         List<ParkingRequestEntity> parkingRequestEntities = parkingRequestRepository.queryParkingRequestByApplicantId(
                 usersBaseDto.getUserId(),
-                parkingRequestCreateDto.getNextWeekStartDate()
+                parkingRequestCreateDto.getWeekStartDate()
         );
 
         return parkingRequestEntities.isEmpty();
@@ -74,18 +77,17 @@ public class ParkingDao {
             return false;
         }
 
-        List<ParkingRequestEntity> currentRequest = parkingRequestRepository.getCurrentRequest(parkingRequestCreateDto.getNextWeekStartDate());
-        List<ParkingQuotaEntity> parkingQuotaEntities = parkingQuotaRepository.getTotalSlots(parkingRequestCreateDto.getNextWeekStartDate());
-        Integer totalSlots = ObjectUtils.isEmpty(parkingQuotaEntities) ? Integer.valueOf(0) : parkingQuotaEntities.get(0).getTotalSlots();
+        List<ParkingRequestEntity> currentRequest = parkingRequestRepository.getCurrentRequest(parkingRequestCreateDto.getWeekStartDate());
+        List<ParkingQuotaEntity> totalSlots = parkingQuotaRepository.getTotalSlots(parkingRequestCreateDto.getWeekStartDate());
 
-        return currentRequest.size() < totalSlots;
+        return currentRequest.size() < totalSlots.get(0).getTotalSlots();
     }
 
     public ParkingRequestDto saveParkingRequest(ParkingRequestCreateDto parkingRequestCreateDto, UsersBaseDto usersBaseDto) {
         ParkingRequestEntity entity = new ParkingRequestEntity();
         LocalDateTime applicationTime = LocalDateTime.now();
 
-        entity.setWeekStartDate(parkingRequestCreateDto.getNextWeekStartDate());
+        entity.setWeekStartDate(parkingRequestCreateDto.getWeekStartDate());
         entity.setCellPhone(parkingRequestCreateDto.getCellPhone());
         entity.setCarNumber(parkingRequestCreateDto.getCarNumber());
         entity.setCarType(parkingRequestCreateDto.getCarType());
@@ -98,7 +100,7 @@ public class ParkingDao {
 
         return ParkingRequestDto.builder()
                 .Id(id)
-                .weekStartDate(parkingRequestCreateDto.getNextWeekStartDate())
+                .weekStartDate(parkingRequestCreateDto.getWeekStartDate())
                 .cellPhone(parkingRequestCreateDto.getCellPhone())
                 .carNumber(parkingRequestCreateDto.getCarNumber())
                 .carType(parkingRequestCreateDto.getCarType())
