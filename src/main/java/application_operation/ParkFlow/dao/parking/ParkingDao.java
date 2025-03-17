@@ -158,7 +158,7 @@ public class ParkingDao {
             parkingRequest.setCarType(dto[2] != null ? dto[2].toString() : "");
             parkingRequest.setCarNumber(maskCarNumber(dto[3] != null ? dto[3].toString() : ""));
             parkingRequest.setCellphone(maskCellphone(dto[4] != null ? dto[4].toString() : ""));
-            parkingRequest.setParkingSlotNumber(dto[5] instanceof Number ? ((Number) dto[5]).intValue() : null);
+            parkingRequest.setParkingSlotNumber(dto[5] != null ? Integer.valueOf(dto[5].toString()) : null);
             parkingRequest.setStatus(dto[6] != null ? ParkingRequestEnum.getNameByCode(dto[6].toString()) : "");
 
             return parkingRequest;
