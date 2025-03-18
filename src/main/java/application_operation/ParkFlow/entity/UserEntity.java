@@ -42,8 +42,8 @@ public class UserEntity {
     private Integer roleId = 1;
 
     @Column(name = "CREATED_AT", insertable = false, updatable = false)
-    private LocalDateTime createAt;
+    private LocalDateTime createdAt;
 
     @Column(name = "UPDATED_AT", insertable = false)
-    private LocalDateTime updateAt;
+    private LocalDateTime updatedAt;
 }

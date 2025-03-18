@@ -33,14 +33,14 @@ public interface ParkingRequestRepository extends JpaRepository<ParkingRequestEn
                     WHERE
                         APPLICANT_ID = :applicantId
                     AND
-                        WEEK_START_DATE = :weekStartDate
+                        START_DATE = :startDate
                     AND
                         STATUS IN (0, 1)
                     """, nativeQuery = true
     )
     List<ParkingRequestEntity> queryParkingRequestByApplicantId(
             @Param("applicantId") Integer applicantId,
-            @Param("weekStartDate") LocalDateTime weekStartDate
+            @Param("startDate") LocalDateTime startDate
     );
 
     @Query(
@@ -50,11 +50,11 @@ public interface ParkingRequestRepository extends JpaRepository<ParkingRequestEn
                     FROM
                         PARKING_REQUEST
                     WHERE
-                        WEEK_START_DATE = :weekStartDate
+                        START_DATE = :startDate
                     AND
                         STATUS IN (0, 1)
                     """, nativeQuery = true)
-    List<ParkingRequestEntity> getCurrentRequest(@Param("weekStartDate")LocalDateTime weekStartDate);
+    List<ParkingRequestEntity> getCurrentRequest(@Param("startDate")LocalDateTime startDate);
 
     @Query(
             value = """
@@ -73,13 +73,13 @@ public interface ParkingRequestRepository extends JpaRepository<ParkingRequestEn
                     ON
                         u.ID = r.APPLICANT_ID
                     WHERE
-                        r.WEEK_START_DATE = :weekStartDate
+                        r.START_DATE = :startDate
                     AND
                         u.ID = :userId
                     """, nativeQuery = true
     )
     List<Object[]> queryUserParkingRequest(
-            @Param("weekStartDate") LocalDateTime weekStartDate,
+            @Param("startDate") LocalDateTime startDate,
             @Param("userId") Integer userId
     );
 
@@ -101,7 +101,7 @@ public interface ParkingRequestRepository extends JpaRepository<ParkingRequestEn
                     WHERE
                         pr.Id = :id
                     """, nativeQuery = true)
-    List<Object[]> findPringkRequestAndUserById(@Param("id") Integer id);
+    List<Object[]> findParkingRequestAndUserById(@Param("id") Integer id);
 
     @Query(
             value = """
@@ -121,10 +121,10 @@ public interface ParkingRequestRepository extends JpaRepository<ParkingRequestEn
                     ON
                         u.ID = r.APPLICANT_ID
                     WHERE
-                        r.WEEK_START_DATE = :weekStartDate
+                        r.START_DATE = :startDate
                     """, nativeQuery = true
     )
     List<Object[]> queryParkingRequestByFmId(
-            @Param("weekStartDate") LocalDateTime weekStartDate
+            @Param("startDate") LocalDateTime startDate
     );
 }

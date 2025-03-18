@@ -56,12 +56,12 @@ public class ParkingDao {
         return parkingRequestRepository.existsById(id);
     }
 
-    public Boolean existsByWeekStartDate(LocalDateTime inputDateTime){
-        return parkingQuotaRepository.existsByWeekStartDate(inputDateTime);
+    public Boolean existsByStartDate(LocalDateTime inputDateTime){
+        return parkingQuotaRepository.existsByStartDate(inputDateTime);
     }
 
-    public Integer getAllReservedSlots(LocalDateTime weekStartDate){
-        return parkingQuotaRepository.getAllReservedSlots(weekStartDate);
+    public Integer getAllReservedSlots(LocalDateTime startDate){
+        return parkingQuotaRepository.getAllReservedSlots(startDate);
     }
 
     @Transactional(readOnly = true)
@@ -72,7 +72,7 @@ public class ParkingDao {
 
         List<ParkingRequestEntity> parkingRequestEntities = parkingRequestRepository.queryParkingRequestByApplicantId(
                 usersBaseDto.getUserId(),
-                parkingRequestCreateDto.getWeekStartDate()
+                parkingRequestCreateDto.getStartDate()
         );
 
         return parkingRequestEntities.isEmpty();
@@ -84,8 +84,8 @@ public class ParkingDao {
             return false;
         }
 
-        List<ParkingRequestEntity> currentRequest = parkingRequestRepository.getCurrentRequest(parkingRequestCreateDto.getWeekStartDate());
-        List<ParkingQuotaEntity> totalSlots = parkingQuotaRepository.getTotalSlots(parkingRequestCreateDto.getWeekStartDate());
+        List<ParkingRequestEntity> currentRequest = parkingRequestRepository.getCurrentRequest(parkingRequestCreateDto.getStartDate());
+        List<ParkingQuotaEntity> totalSlots = parkingQuotaRepository.getTotalSlots(parkingRequestCreateDto.getStartDate());
 
         return currentRequest.size() < totalSlots.get(0).getTotalSlots();
     }
@@ -94,7 +94,7 @@ public class ParkingDao {
         ParkingRequestEntity entity = new ParkingRequestEntity();
         LocalDateTime applicationTime = LocalDateTime.now();
 
-        entity.setWeekStartDate(parkingRequestCreateDto.getWeekStartDate());
+        entity.setStartDate(parkingRequestCreateDto.getStartDate());
         entity.setCellPhone(parkingRequestCreateDto.getCellPhone());
         entity.setCarNumber(parkingRequestCreateDto.getCarNumber());
         entity.setCarType(parkingRequestCreateDto.getCarType());
@@ -107,7 +107,7 @@ public class ParkingDao {
 
         return ParkingRequestDto.builder()
                 .Id(id)
-                .weekStartDate(parkingRequestCreateDto.getWeekStartDate())
+                .startDate(parkingRequestCreateDto.getStartDate())
                 .cellPhone(parkingRequestCreateDto.getCellPhone())
                 .carNumber(parkingRequestCreateDto.getCarNumber())
                 .carType(parkingRequestCreateDto.getCarType())
@@ -118,7 +118,7 @@ public class ParkingDao {
     public ParkingQuotaEntity saveParkingQuota(ParkingQuotaCreateDto parkingQuotaCreateDto){
         ParkingQuotaEntity parkingQuotaEntity = new ParkingQuotaEntity();
 
-        parkingQuotaEntity.setWeekStartDate(parkingQuotaCreateDto.getWeekStartDate());
+        parkingQuotaEntity.setStartDate(parkingQuotaCreateDto.getStartDate());
         parkingQuotaEntity.setTotalSlots(parkingQuotaCreateDto.getTotalSlots());
 
         return parkingQuotaRepository.save(parkingQuotaEntity);
@@ -155,7 +155,7 @@ public class ParkingDao {
     @Transactional(readOnly = true)
     public ReUserParkingRequestDto findUserParkingRequest(QueryUserParkingRequestDto queryUserParkingRequestDto, UsersBaseDto usersBaseDto) {
         List<Object[]> parkingRequestAndUsers = parkingRequestRepository.queryUserParkingRequest(
-                queryUserParkingRequestDto.getWeekStartDate(),
+                queryUserParkingRequestDto.getStartDate(),
                 usersBaseDto.getUserId()
         );
 
@@ -178,7 +178,7 @@ public class ParkingDao {
 
     @Transactional(readOnly = true)
     public List<ReParkingRequestDto.parkingRequest> findParkingRequest(QueryParkingRequestDto queryParkingRequestDto) {
-        List<Object[]> parkingRequestAndUsers = parkingRequestRepository.queryParkingRequestByFmId(queryParkingRequestDto.getWeekStartDate());
+        List<Object[]> parkingRequestAndUsers = parkingRequestRepository.queryParkingRequestByFmId(queryParkingRequestDto.getStartDate());
 
         if(parkingRequestAndUsers.size() <= 0) {
             return new ArrayList<>();
@@ -203,10 +203,8 @@ public class ParkingDao {
     }
 
     @Transactional(readOnly = true)
-    public ParkingQuotaEntity findParkingQuotaByWeekStartDate(LocalDateTime weekStartDate) {
-        ParkingQuotaEntity entities = parkingQuotaRepository.findByWeekStartDate(weekStartDate);
-
-        return entities;
+    public ParkingQuotaEntity findParkingQuotaByStartDate(LocalDateTime startDate) {
+        return parkingQuotaRepository.findByStartDate(startDate);
     }
 
     /**

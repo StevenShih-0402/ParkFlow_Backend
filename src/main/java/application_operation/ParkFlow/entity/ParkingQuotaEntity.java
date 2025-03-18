@@ -19,8 +19,8 @@ public class ParkingQuotaEntity {
     @SequenceGenerator(name = "parking_quota_seq_gen", sequenceName = "SEQ_PARKING_QUOTA", allocationSize = 1)
     private Integer id;
 
-    @Column(name = "WEEK_START_DATE", updatable = false)
-    private LocalDateTime weekStartDate;
+    @Column(name = "START_DATE", updatable = false)
+    private LocalDateTime startDate;
 
     @Column(name = "TOTAL_SLOTS")
     private Integer totalSlots = 1;

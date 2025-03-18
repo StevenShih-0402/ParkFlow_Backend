@@ -13,9 +13,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class ParkingQuotaCreateRq {
 
-    @NotNull(message = "{weekStartDate.notnull}")
+    @NotNull(message = "{startDate.notnull}")
     @Schema(title = "下週開始日期", example = "2025-03-17T00:00:00")
-    private LocalDateTime weekStartDate;
+    private LocalDateTime startDate;
 
     @NotNull(message = "{totalSlots.notnull}")
     @Schema(title = "可申請的車位數量上限", example = "10")

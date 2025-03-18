@@ -12,5 +12,5 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class QueryParkingRequestDto {
-    private LocalDateTime weekStartDate;
+    private LocalDateTime startDate;
 }

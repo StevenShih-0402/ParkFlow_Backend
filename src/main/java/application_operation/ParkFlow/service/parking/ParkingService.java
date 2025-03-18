@@ -57,14 +57,14 @@ public class ParkingService {
         // Jwt Token 驗證
         jwtUtil.validateToken();
 
-        LocalDateTime requestedDate = parkingRequestCreateRq.getWeekStartDate();
+        LocalDateTime requestedDate = parkingRequestCreateRq.getStartDate();
         LocalDateTime now = LocalDateTime.now(); // 取得當前時間
-        LocalDateTime nextWeekStartDate = LocalDateTime.now()
+        LocalDateTime startDate = LocalDateTime.now()
                 .with(DayOfWeek.SUNDAY) // 設定為這周日
                 .toLocalDate()
                 .atStartOfDay(); // 計算下週開始時間
 
-        if(!validUtils.isValidRequest(now, requestedDate, nextWeekStartDate)) {
+        if(!validUtils.isValidRequest(now, requestedDate, startDate)) {
             throw new HandleException(ResponseCodeEnum.BUSINESS_ERROR.getResponseCode(), "業務邏輯錯誤：申請「下週」車位必須在本週四前申請；但如果申請「下下週及以後」的車位，則隨時可以申請。");
         }
 
@@ -76,14 +76,14 @@ public class ParkingService {
 
         // Rq -> Dto
         ParkingRequestCreateDto parkingRequestCreateDto = ParkingRequestCreateDto.builder()
-                .weekStartDate(parkingRequestCreateRq.getWeekStartDate())
+                .startDate(parkingRequestCreateRq.getStartDate())
                 .cellPhone(parkingRequestCreateRq.getCellPhone())
                 .carNumber(parkingRequestCreateRq.getCarNumber())
                 .carType(parkingRequestCreateRq.getCarType())
                 .build();
 
         // 檢查申請的日期是否已設定停車位上限
-        if(!parkingDao.existsByWeekStartDate(parkingRequestCreateDto.getWeekStartDate())){
+        if(!parkingDao.existsByStartDate(parkingRequestCreateDto.getStartDate())){
             throw new HandleException(ResponseCodeEnum.BUSINESS_ERROR.getResponseCode(), "業務邏輯錯誤：本週尚未設定停車上限，無法申請。");
         }
 
@@ -211,7 +211,7 @@ public class ParkingService {
 
         // Rq -> Dto
         QueryUserParkingRequestDto queryUserParkingRequestDto = QueryUserParkingRequestDto.builder()
-                .weekStartDate(queryUserParkingRequestRq.getWeekStartDate())
+                .startDate(queryUserParkingRequestRq.getStartDate())
                 .build();
 
         // 搜尋結果
@@ -231,11 +231,11 @@ public class ParkingService {
 
         // Rq -> Dto
         QueryParkingRequestDto queryParkingRequestDto = QueryParkingRequestDto.builder()
-                .weekStartDate(queryParkingRequestRq.getWeekStartDate())
+                .startDate(queryParkingRequestRq.getStartDate())
                 .build();
 
         List<ReParkingRequestDto.parkingRequest> parkingRequest = parkingDao.findParkingRequest(queryParkingRequestDto);
-        ParkingQuotaEntity entity = parkingDao.findParkingQuotaByWeekStartDate(queryParkingRequestDto.getWeekStartDate());
+        ParkingQuotaEntity entity = parkingDao.findParkingQuotaByStartDate(queryParkingRequestDto.getStartDate());
         int parkingRequestCount = (int) parkingRequest.stream()
                 .filter(x -> x.getStatus().equals(ParkingRequestEnum.APPROVED.name()) || x.getStatus().equals(ParkingRequestEnum.REVIEW.name()))
                 .count();
@@ -268,11 +268,11 @@ public class ParkingService {
         BeanUtils.copyProperties(parkingQuotaCreateRq, parkingQuotaCreateDto);
 
         // 日期是否在今天以後
-        if(parkingQuotaCreateDto.getWeekStartDate().isBefore(LocalDateTime.now())){
+        if(parkingQuotaCreateDto.getStartDate().isBefore(LocalDateTime.now())){
             throw new HandleException(ResponseCodeEnum.BUSINESS_ERROR.getResponseCode(), "業務邏輯錯誤：必須輸入今天之後的日期。");
         }
         // 日期是否有重複
-        if(parkingDao.existsByWeekStartDate(parkingQuotaCreateDto.getWeekStartDate())){
+        if(parkingDao.existsByStartDate(parkingQuotaCreateDto.getStartDate())){
             throw new HandleException(ResponseCodeEnum.BUSINESS_ERROR.getResponseCode(), "業務邏輯錯誤：日期資料不能重複。");
         }
 
@@ -304,7 +304,7 @@ public class ParkingService {
 
         // 更新後剩餘停車位是否會小於 0
         ParkingQuotaEntity parkingQuotaRecord = parkingDao.findParkingQuotaById(parkingQuotaUpdateDto.getId());
-        if(parkingQuotaUpdateDto.getTotalSlots() - parkingDao.getAllReservedSlots(parkingQuotaRecord.getWeekStartDate()) < 0){
+        if(parkingQuotaUpdateDto.getTotalSlots() - parkingDao.getAllReservedSlots(parkingQuotaRecord.getStartDate()) < 0){
             throw new HandleException(ResponseCodeEnum.BUSINESS_ERROR.getResponseCode(), "業務邏輯錯誤：剩餘車位會小於 0。");
         }
 

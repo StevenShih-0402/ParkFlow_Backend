@@ -15,8 +15,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class QueryParkingRequestRq {
 
-    @NotNull(message = "{weekStartDate.notnull}")
+    @NotNull(message = "{startDate.notnull}")
     @Schema(title = "當周開始時間", description = "當周開始時間", example = "2025-03-09T00:00:00")
-    private LocalDateTime weekStartDate;
-
+    private LocalDateTime startDate;
 }
