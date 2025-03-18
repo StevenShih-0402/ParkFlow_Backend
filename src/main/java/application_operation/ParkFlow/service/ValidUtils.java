@@ -29,10 +29,10 @@ public class ValidUtils {
         }
     }
 
-    public Boolean isValidRequest(LocalDateTime now, LocalDateTime requestedDate, LocalDateTime nextWeekStartDate) {
+    public Boolean isValidRequest(LocalDateTime now, LocalDateTime requestedDate, LocalDateTime startDate) {
 
         // 計算下下週開始時間
-        LocalDateTime nextNextWeekStartDate = nextWeekStartDate.plusWeeks(1);
+        LocalDateTime nextTwoWeekStartDate = startDate.plusWeeks(1);
 
         // 取得 "本週四 00:00"
         LocalDateTime thisThursday = now.toLocalDate()
@@ -40,7 +40,7 @@ public class ValidUtils {
                 .atStartOfDay();
 
         // **條件 1：申請時間屬於「下週」範圍**
-        Boolean isNextWeek = !requestedDate.isBefore(nextWeekStartDate) && requestedDate.isBefore(nextNextWeekStartDate);
+        Boolean isNextWeek = !requestedDate.isBefore(startDate) && requestedDate.isBefore(nextTwoWeekStartDate);
 
         // **條件 2：現在時間必須在「本週四之前」才能申請「下週」**
         Boolean isBeforeThursday = now.isBefore(thisThursday);

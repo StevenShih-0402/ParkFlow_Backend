@@ -14,11 +14,8 @@ import java.util.List;
 @NoArgsConstructor
 public class ReParkingRequestDto {
     private Integer totalSlotsId;
-
     private Integer totalSlots;
-
     private Integer remainingQuantity;
-
     private List<parkingRequest> parkingRequestList;
 
     @Data

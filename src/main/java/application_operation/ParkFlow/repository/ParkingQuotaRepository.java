@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface ParkingQuotaRepository extends JpaRepository<ParkingQuotaEntity, Integer> {
 
-    ParkingQuotaEntity findByWeekStartDate(LocalDateTime weekStartDate);
+    ParkingQuotaEntity findByStartDate(LocalDateTime startDate);
 
     @Query(
             value = """
@@ -19,11 +19,11 @@ public interface ParkingQuotaRepository extends JpaRepository<ParkingQuotaEntity
                     FROM
                         PARKING_QUOTA
                     WHERE
-                        WEEK_START_DATE = :weekStartDate
+                        START_DATE = :startDate
                     """, nativeQuery = true)
-    List<ParkingQuotaEntity> getTotalSlots(@Param("weekStartDate") LocalDateTime weekStartDate);
+    List<ParkingQuotaEntity> getTotalSlots(@Param("startDate") LocalDateTime startDate);
 
-    Boolean existsByWeekStartDate(LocalDateTime localDateTime);
+    Boolean existsByStartDate(LocalDateTime startDate);
 
     @Query(
             value = """
@@ -35,9 +35,9 @@ public interface ParkingQuotaRepository extends JpaRepository<ParkingQuotaEntity
                      FROM
                         PARKING_QUOTA
                      WHERE
-                        WEEK_START_DATE = :localDateTime AND ID != :id
+                        START_DATE = :startDate AND ID != :id
                     """, nativeQuery = true)
-    Integer existsByWeekStartDateExceptSelf(Integer id, LocalDateTime localDateTime);
+    Integer existsByStartDateExceptSelf(Integer id, LocalDateTime startDate);
 
     @Query(
             value = """
@@ -46,7 +46,7 @@ public interface ParkingQuotaRepository extends JpaRepository<ParkingQuotaEntity
                      FROM
                         PARKING_REQUEST
                      WHERE
-                        WEEK_START_DATE = :weekStartDate
+                        START_DATE = :startDate
                     """, nativeQuery = true)
-    Integer getAllReservedSlots(LocalDateTime weekStartDate);
+    Integer getAllReservedSlots(LocalDateTime startDate);
 }

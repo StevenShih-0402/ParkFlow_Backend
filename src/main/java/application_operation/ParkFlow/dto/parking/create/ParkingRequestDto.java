@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 public class ParkingRequestDto {
     private Integer Id;
     private LocalDateTime applicationTime;
-    private LocalDateTime weekStartDate;
+    private LocalDateTime startDate;
     private String cellPhone;
     private String carNumber;
     private String carType;

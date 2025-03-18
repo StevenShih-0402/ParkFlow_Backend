@@ -21,8 +21,8 @@ public class ParkingRequestEntity {
     @Column(name = "ID")
     private Integer id;
 
-    @Column(name = "WEEK_START_DATE")
-    private LocalDateTime weekStartDate;
+    @Column(name = "START_DATE")
+    private LocalDateTime startDate;
 
     @Column(name = "CELLPHONE")
     private String cellPhone;
