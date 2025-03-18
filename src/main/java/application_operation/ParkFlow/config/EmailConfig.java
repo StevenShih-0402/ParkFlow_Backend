@@ -6,6 +6,7 @@ import application_operation.ParkFlow.exception.HandleException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 public class EmailConfig {
     private final JavaMailSender mailSender;
 
+    @Async
     public void consumeEmail(EmailDto emailDto) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
