@@ -14,6 +14,8 @@ import application_operation.ParkFlow.dto.parking.update.UpdateParkingRequestDto
 import application_operation.ParkFlow.entity.ParkingQuotaEntity;
 import application_operation.ParkFlow.entity.ParkingRequestEntity;
 import application_operation.ParkFlow.enums.ParkingRequestEnum;
+import application_operation.ParkFlow.enums.ResponseCodeEnum;
+import application_operation.ParkFlow.exception.HandleException;
 import application_operation.ParkFlow.repository.ParkingQuotaRepository;
 import application_operation.ParkFlow.repository.ParkingRequestRepository;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +43,11 @@ public class ParkingDao {
         return parkingRequestRepository.queryParkingRequestById(parkingRequestUpdateDto.getId());
     }
 
+    public ParkingQuotaEntity findParkingQuotaById(Integer id){
+        return parkingQuotaRepository.findById(id)
+                                     .orElseThrow(() -> new HandleException(ResponseCodeEnum.DATABASE_ERROR.getResponseCode(), "資料庫內容錯誤：找不到對應的停車位上限設定紀錄。"));
+    }
+
     public Boolean existsByParkingQuotaId(Integer id){
         return parkingQuotaRepository.existsById(id);
     }
@@ -53,8 +60,8 @@ public class ParkingDao {
         return parkingQuotaRepository.existsByWeekStartDate(inputDateTime);
     }
 
-    public Boolean existsByWeekStartDateExceptSelf(Integer id, LocalDateTime inputDateTime){
-        return parkingQuotaRepository.existsByWeekStartDateExceptSelf(id, inputDateTime) == 1;
+    public Integer getAllReservedSlots(LocalDateTime weekStartDate){
+        return parkingQuotaRepository.getAllReservedSlots(weekStartDate);
     }
 
     @Transactional(readOnly = true)

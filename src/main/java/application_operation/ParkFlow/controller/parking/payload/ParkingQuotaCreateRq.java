@@ -2,8 +2,6 @@ package application_operation.ParkFlow.controller.parking.payload;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,7 +18,6 @@ public class ParkingQuotaCreateRq {
     private LocalDateTime weekStartDate;
 
     @NotNull(message = "{totalSlots.notnull}")
-    @PositiveOrZero
     @Schema(title = "可申請的車位數量上限", example = "10")
     private Integer totalSlots;
 }

@@ -51,7 +51,7 @@ public class JwtUtil {
 
         // Jwt 不存在或格式錯誤
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            throw new JwtTokenException("Missing or invalid Authorization header");
+            throw new JwtTokenException("身分驗證錯誤：Token 不存在或格式錯誤。");
         }
 
         return extractToken(authHeader);
@@ -63,7 +63,7 @@ public class JwtUtil {
             String token = extractTokenFromAuthHeader();
             // token 已經包含在黑名單
             if (blacklistedTokens.contains(token)) {
-                throw new JwtTokenException("Invalid JWT token");
+                throw new JwtTokenException("身分驗證錯誤：不合法的 Token。");
             }
 
             Jwts.parserBuilder()
@@ -71,7 +71,7 @@ public class JwtUtil {
                     .build()
                     .parseClaimsJws(token);
         } catch (JwtException | IllegalArgumentException e) {
-            throw new JwtTokenException("Invalid JWT token");
+            throw new JwtTokenException("身分驗證錯誤：不合法的 Token。");
         }
     }
 

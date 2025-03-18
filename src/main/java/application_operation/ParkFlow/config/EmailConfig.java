@@ -1,6 +1,7 @@
 package application_operation.ParkFlow.config;
 
 import application_operation.ParkFlow.dto.mail.EmailDto;
+import application_operation.ParkFlow.enums.ResponseCodeEnum;
 import application_operation.ParkFlow.exception.HandleException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
@@ -22,7 +23,7 @@ public class EmailConfig {
 
             mailSender.send(message);
         } catch (Exception e) {
-            throw new HandleException(e.getMessage());
+            throw new HandleException(ResponseCodeEnum.MAIL_ERROR.getResponseCode(), e.getMessage());
         }
     }
 }
