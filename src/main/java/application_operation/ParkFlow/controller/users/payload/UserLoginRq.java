@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UserLoginRq {
 
-    @Email
+    @Email(message = "{email.format}")
     @NotBlank(message = "{email.notblank}")
     @Schema(title = "信箱", example = "lin@gmail.com")
     private String email;

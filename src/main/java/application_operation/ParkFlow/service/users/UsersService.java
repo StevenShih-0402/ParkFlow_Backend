@@ -29,7 +29,7 @@ public class UsersService {
 
         // 信箱是否已經註冊過
         if(userDao.existEmail(userCreateDto.getEmail())){
-            throw new HandleException("此信箱已經被註冊過。");
+            throw new HandleException(ResponseCodeEnum.BUSINESS_ERROR.getResponseCode(), "業務邏輯錯誤：信箱不能重複註冊。");
         }
 
         return tokenTransfer(userDao.saveUser(userCreateDto));
@@ -41,9 +41,9 @@ public class UsersService {
         UserLoginDto userLoginDto = new UserLoginDto();
         BeanUtils.copyProperties(userLoginRq, userLoginDto);
 
-        // Email 不存在的話，回傳 Success 0001
+        // Email 不存在的話，回傳 0001
         if(!userDao.existEmail(userLoginDto.getEmail())){
-            return ResponseCodeEnum.REGISTER_REQ.getResponseCode();
+            throw new HandleException(ResponseCodeEnum.REGISTER_REQ.getResponseCode(), "身分驗證錯誤：請先註冊後再登入系統。");
         }
 
         // 存在的話，用 Email 找出用戶資料並包裝成 Jwt

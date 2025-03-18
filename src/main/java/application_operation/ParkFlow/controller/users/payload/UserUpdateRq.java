@@ -15,13 +15,13 @@ import lombok.NoArgsConstructor;
 public class UserUpdateRq {
 
     @ChineseName
-    @Size(max = 20, min = 1)
+    @Size(max = 20, min = 1, message = "{chineseName.long}")
     @NotBlank(message = "{chineseName.notblank}")
     @Schema(title = "中文姓名", example = "小吳")
     private String chineseName;
 
     @EnglishName
-    @Size(max = 50, min = 1)
+    @Size(max = 50, min = 1, message = "{englishName.long}")
     @NotBlank(message = "{englishName.notblank}")
     @Schema(title = "英文姓名", example = "Wu")
     private String englishName;

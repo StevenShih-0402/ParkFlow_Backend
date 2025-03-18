@@ -10,7 +10,7 @@ import java.lang.annotation.*;
 @Target({ ElementType.FIELD, ElementType.PARAMETER })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Cellphone {
-    String message() default "行動電話必須為台灣電話號碼格式 (09開頭，共10個數字)。";
+    String message() default "輸入格式錯誤：行動電話必須為台灣電話號碼格式 (09開頭，共10個數字)。";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

@@ -5,7 +5,6 @@ import application_operation.ParkFlow.controller.users.payload.UserCreateRq;
 import application_operation.ParkFlow.controller.users.payload.UserLoginRq;
 import application_operation.ParkFlow.controller.users.payload.UserUpdateRq;
 import application_operation.ParkFlow.dto.users.UserQueryDto;
-import application_operation.ParkFlow.enums.ResponseCodeEnum;
 import application_operation.ParkFlow.service.users.UsersService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -35,13 +34,6 @@ public class UsersController {
     public ResponseEntity<SuccessResponse<String>> login(@Valid @RequestBody UserLoginRq userLoginRq){
         String response = usersService.login(userLoginRq);
 
-        if(response.equals(ResponseCodeEnum.REGISTER_REQ.getResponseCode())){
-            return ResponseEntity.ok(SuccessResponse.<String>builder()
-                    .code(response)  // 0001 跳轉至註冊介面
-                    .message("找不到對應的用戶資料，請先註冊後再登入系統。")
-                    .data(null)
-                    .build());
-        }
         return ResponseEntity.ok(SuccessResponse.<String>builder()
                 .data(response)  // 登入成功回傳 Token
                 .build());

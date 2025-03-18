@@ -6,7 +6,6 @@ import application_operation.ParkFlow.validTag.englishname.EnglishName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,18 +17,18 @@ import lombok.NoArgsConstructor;
 public class UserCreateRq {
 
     @ChineseName
-    @Size(max = 20, min = 1)
+    @Size(max = 20, min = 1, message = "{chineseName.long}")
     @NotBlank(message = "{chineseName.notblank}")
     @Schema(title = "中文姓名", example = "小吳")
     private String chineseName;
 
     @EnglishName
-    @Size(max = 50, min = 1)
+    @Size(max = 50, min = 1, message = "{englishName.long}")
     @NotBlank(message = "{englishName.notblank}")
     @Schema(title = "英文姓名", example = "Wu")
     private String englishName;
 
-    @Email
+    @Email(message = "{email.format}")
     @NotBlank(message = "{email.notblank}")
     @Schema(title = "信箱", example = "wu@gmail.com")
     private String email;

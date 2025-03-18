@@ -38,4 +38,15 @@ public interface ParkingQuotaRepository extends JpaRepository<ParkingQuotaEntity
                         WEEK_START_DATE = :localDateTime AND ID != :id
                     """, nativeQuery = true)
     Integer existsByWeekStartDateExceptSelf(Integer id, LocalDateTime localDateTime);
+
+    @Query(
+            value = """
+                     SELECT
+                        COUNT(*)
+                     FROM
+                        PARKING_REQUEST
+                     WHERE
+                        WEEK_START_DATE = :weekStartDate
+                    """, nativeQuery = true)
+    Integer getAllReservedSlots(LocalDateTime weekStartDate);
 }
