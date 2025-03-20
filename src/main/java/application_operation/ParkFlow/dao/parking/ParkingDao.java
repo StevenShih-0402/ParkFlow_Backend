@@ -173,7 +173,11 @@ public class ParkingDao {
             return parkingRequest;
         }).toList();
 
-        return new ReUserParkingRequestDto(parkingRequestList);
+        ReUserParkingRequestDto resultDto = new ReUserParkingRequestDto();
+        resultDto.setParkingRequestList(parkingRequestList);
+        resultDto.setRemainingQuantity(getRemainingSlots(queryUserParkingRequestDto.getStartDate()));
+
+        return resultDto;
     }
 
     @Transactional(readOnly = true)
@@ -229,5 +233,17 @@ public class ParkingDao {
      */
     private String maskCellphone(String cellphone) {
         return cellphone.substring(0, 3) + "*".repeat(cellphone.length() - 6) + cellphone.substring(cellphone.length() - 3);
+    }
+
+    private Integer getRemainingSlots(LocalDateTime startDate){
+        Integer reservedSlots = parkingQuotaRepository.getAllReservedSlots(startDate);
+
+        ParkingQuotaEntity parkingQuotaEntity = parkingQuotaRepository.findByStartDate(startDate);
+        Integer allSlots = 0;
+        if(parkingQuotaEntity != null){
+            allSlots = parkingQuotaEntity.getTotalSlots();
+        }
+
+        return allSlots - reservedSlots;
     }
 }
