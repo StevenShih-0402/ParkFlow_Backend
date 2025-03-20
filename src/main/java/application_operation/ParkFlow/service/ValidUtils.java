@@ -29,6 +29,13 @@ public class ValidUtils {
         }
     }
 
+    // 日期是否在今天以後
+    public void isBeforeDate(LocalDateTime startDate){
+        if(startDate.isBefore(LocalDateTime.now())) {
+            throw new HandleException(ResponseCodeEnum.BUSINESS_ERROR.getResponseCode(), "業務邏輯錯誤：日期必須在今天以後。");
+        }
+    }
+
     public Boolean isValidRequest(LocalDateTime now, LocalDateTime requestedDate, LocalDateTime startDate) {
 
         // 計算下下週開始時間

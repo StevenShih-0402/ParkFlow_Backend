@@ -82,6 +82,9 @@ public class ParkingService {
                 .carType(parkingRequestCreateRq.getCarType())
                 .build();
 
+        // 日期是否在今天以後
+        validUtils.isBeforeDate(parkingRequestCreateDto.getStartDate());
+
         // 檢查申請的日期是否已設定停車位上限
         if(!parkingDao.existsByStartDate(parkingRequestCreateDto.getStartDate())){
             throw new HandleException(ResponseCodeEnum.BUSINESS_ERROR.getResponseCode(), "業務邏輯錯誤：本週尚未設定停車上限，無法申請。");
@@ -268,9 +271,8 @@ public class ParkingService {
         BeanUtils.copyProperties(parkingQuotaCreateRq, parkingQuotaCreateDto);
 
         // 日期是否在今天以後
-        if(parkingQuotaCreateDto.getStartDate().isBefore(LocalDateTime.now())){
-            throw new HandleException(ResponseCodeEnum.BUSINESS_ERROR.getResponseCode(), "業務邏輯錯誤：必須輸入今天之後的日期。");
-        }
+        validUtils.isBeforeDate(parkingQuotaCreateDto.getStartDate());
+
         // 日期是否有重複
         if(parkingDao.existsByStartDate(parkingQuotaCreateDto.getStartDate())){
             throw new HandleException(ResponseCodeEnum.BUSINESS_ERROR.getResponseCode(), "業務邏輯錯誤：日期資料不能重複。");
