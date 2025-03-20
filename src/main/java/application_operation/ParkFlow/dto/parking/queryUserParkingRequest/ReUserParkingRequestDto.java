@@ -14,6 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 public class ReUserParkingRequestDto {
     private List<parkingRequest> parkingRequestList;
+    private Integer remainingQuantity;
 
     @Data
     @SuperBuilder
