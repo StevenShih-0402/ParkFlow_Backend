@@ -113,7 +113,8 @@ public interface ParkingRequestRepository extends JpaRepository<ParkingRequestEn
                         r.CELLPHONE as cellphone,
                         r.PARKING_SLOT_NUMBER as parkingSlotNumber,
                         r.STATUS as status,
-                        r.ID as requestId
+                        r.ID as requestId,
+                        u.ENGLISH_NAME as englishName
                     FROM
                         USERS u
                     INNER JOIN

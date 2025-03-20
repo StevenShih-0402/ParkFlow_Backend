@@ -191,8 +191,12 @@ public class ParkingDao {
         List<ReParkingRequestDto.parkingRequest> parkingRequestList = parkingRequestAndUsers.stream().map(dto -> {
             ReParkingRequestDto.parkingRequest parkingRequest = new ReParkingRequestDto.parkingRequest();
 
+            String chineseName = dto[1] != null ? dto[1].toString() : "";
+            String englishName = dto[8] != null ? dto[8].toString() : "";
+            String name = String.format("%s(%s)", chineseName, englishName);
+
             parkingRequest.setRequestTime(dto[0] instanceof Timestamp ? ((Timestamp) dto[0]).toLocalDateTime() : null);
-            parkingRequest.setChineseName(dto[1] != null ? dto[1].toString() : "");
+            parkingRequest.setName(name);
             parkingRequest.setCarType(dto[2] != null ? dto[2].toString() : "");
             parkingRequest.setCarNumber(dto[3] != null ? dto[3].toString() : "");
             parkingRequest.setCellphone(dto[4] != null ? dto[4].toString() : "");
