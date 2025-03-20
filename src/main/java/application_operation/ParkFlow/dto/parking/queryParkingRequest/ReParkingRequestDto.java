@@ -25,7 +25,7 @@ public class ReParkingRequestDto {
     public static class parkingRequest {
         private Integer requestId;
         private LocalDateTime requestTime;
-        private String chineseName;
+        private String name;
         private String carType;
         private String carNumber;
         private String cellphone;
