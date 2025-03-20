@@ -22,7 +22,6 @@ public class ParkingRequestUpdateRq {
     @Schema(title = "審核結果", description = "審核結果", example = "APPROVED")
     private ParkingRequestEnum status;
 
-    @NotNull(message = "{parkingSlotNumber.notnull}")
     @Schema(title = "車位號碼", description = "車位號碼", example = "10")
     private Integer parkingSlotNumber;
 }
