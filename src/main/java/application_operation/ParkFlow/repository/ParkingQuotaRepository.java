@@ -46,7 +46,7 @@ public interface ParkingQuotaRepository extends JpaRepository<ParkingQuotaEntity
                      FROM
                         PARKING_REQUEST
                      WHERE
-                        START_DATE = :startDate AND STATUS != 2
+                        START_DATE = :startDate AND STATUS IN (0,1)
                     """, nativeQuery = true)
     Integer getAllReservedSlots(LocalDateTime startDate);
 }
