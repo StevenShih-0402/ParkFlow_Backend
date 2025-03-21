@@ -22,7 +22,7 @@ public class ReUserParkingRequestDto {
     @NoArgsConstructor
     public static class parkingRequest {
         private LocalDateTime requestTime;
-        private String chineseName;
+        private String name;
         private String carType;
         private String carNumber;
         private String cellphone;

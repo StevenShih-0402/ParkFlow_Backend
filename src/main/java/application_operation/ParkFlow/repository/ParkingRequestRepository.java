@@ -61,6 +61,7 @@ public interface ParkingRequestRepository extends JpaRepository<ParkingRequestEn
                     SELECT
                         r.APPLICATION_TIME as requestTime,
                         u.CHINESE_NAME as chineseName,
+                        u.ENGLISH_NAME as englishName,
                         r.CAR_TYPE as carType,
                         r.CAR_NUMBER as carNumber,
                         r.CELLPHONE as cellphone,
