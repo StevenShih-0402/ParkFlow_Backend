@@ -163,12 +163,12 @@ public class ParkingDao {
             ReUserParkingRequestDto.parkingRequest parkingRequest = new ReUserParkingRequestDto.parkingRequest();
 
             parkingRequest.setRequestTime(dto[0] instanceof Timestamp ? ((Timestamp) dto[0]).toLocalDateTime() : null);
-            parkingRequest.setChineseName(dto[1] != null ? dto[1].toString() : "");
-            parkingRequest.setCarType(dto[2] != null ? dto[2].toString() : "");
-            parkingRequest.setCarNumber(maskCarNumber(dto[3] != null ? dto[3].toString() : ""));
-            parkingRequest.setCellphone(maskCellphone(dto[4] != null ? dto[4].toString() : ""));
-            parkingRequest.setParkingSlotNumber(dto[5] != null ? Integer.valueOf(dto[5].toString()) : null);
-            parkingRequest.setStatus(dto[6] != null ? ParkingRequestEnum.getNameByCode(dto[6].toString()) : "");
+            parkingRequest.setName((dto[1] != null && dto[2] != null) ? dto[1].toString() + "(" + dto[2].toString() + ")" : "");
+            parkingRequest.setCarType(dto[3] != null ? dto[3].toString() : "");
+            parkingRequest.setCarNumber(maskCarNumber(dto[4] != null ? dto[4].toString() : ""));
+            parkingRequest.setCellphone(maskCellphone(dto[5] != null ? dto[5].toString() : ""));
+            parkingRequest.setParkingSlotNumber(dto[6] != null ? Integer.valueOf(dto[6].toString()) : null);
+            parkingRequest.setStatus(dto[7] != null ? ParkingRequestEnum.getNameByCode(dto[7].toString()) : "");
 
             return parkingRequest;
         }).toList();
