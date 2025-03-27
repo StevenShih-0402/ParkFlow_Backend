@@ -48,7 +48,7 @@ public class UserEntity {
     private String carType;
 
     @Comment("權限編號")
-    @Column(name = "ROLE_ID", insertable = false)
+    @Column(name = "ROLE_ID", insertable = false, updatable = false)
     private Integer roleId = 1;
 
     @Comment("新增時間")
