@@ -237,4 +237,51 @@ public class ParkingControllerTest {
                 .andExpect(jsonPath("$.code").value(ResponseCodeEnum.INPUT_ERROR.getResponseCode()))
                 .andExpect(jsonPath("$.data").doesNotExist());
     }
+
+    @Test
+    @DisplayName("ParkingController.update()_success")
+    public void update_success() throws Exception {
+        when(parkingService.update(any())).thenReturn(UpdateParkingRequestDto.builder()
+                .id(1)
+                .status(ParkingRequestEnum.APPROVED)
+                .parkingSlotNumber(10)
+                .build());
+
+        ParkingRequestUpdateRq parkingRequestUpdateRq = ParkingRequestUpdateRq.builder()
+                .id(1)
+                .status(ParkingRequestEnum.APPROVED)
+                .parkingSlotNumber(10)
+                .build();
+
+        mockMvc.perform(put(update)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("utf-8")
+                        .content(objectMapper.writeValueAsString(parkingRequestUpdateRq)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(ResponseCodeEnum.SUCCESS.getResponseCode()))
+                .andExpect(jsonPath("$.data").exists())
+                .andExpect(jsonPath("$.data.id").value(1))
+                .andExpect(jsonPath("$.data.status").value(ParkingRequestEnum.APPROVED.toString()))
+                .andExpect(jsonPath("$.data.parkingSlotNumber").value(10));
+    }
+
+    @Test
+    @DisplayName("ParkingController.update()_failed")
+    public void update_failed() throws Exception {
+
+        ParkingRequestUpdateRq parkingRequestUpdateRq = ParkingRequestUpdateRq.builder()
+                .status(ParkingRequestEnum.APPROVED)
+                .parkingSlotNumber(10)
+                .build();
+
+        mockMvc.perform(put(update)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("utf-8")
+                        .content(objectMapper.writeValueAsString(parkingRequestUpdateRq)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(ResponseCodeEnum.INPUT_ERROR.getResponseCode()))
+                .andExpect(jsonPath("$.data").doesNotExist());
+    }
 }
