@@ -71,16 +71,16 @@ public class UsersServiceTest {
         userEntity.setRoleId(1);
 
         // 模擬信箱不重複的情境
-        when(userDao.existEmail(any(String.class))).thenReturn(false);
+        when(userDao.existEmail(any())).thenReturn(false);
 
         // 模擬 UserDao.saveUser() 執行後回傳結果的情境。
-        when(userDao.saveUser(any(UserCreateDto.class))).thenReturn(userEntity);
+        when(userDao.saveUser(any())).thenReturn(userEntity);
 
         // 模擬用 roleId 查詢 roleName 的情境
-        when(userDao.findRoleName(any(Integer.class))).thenReturn("ROLE_NAME");
+        when(userDao.findRoleName(any())).thenReturn("ROLE_NAME");
 
         // 模擬生成 Jwt 的情境
-        when(jwtUtil.generateToken(any(Integer.class), any(String.class))).thenReturn("mock-jwt-string");
+        when(jwtUtil.generateToken(any(), any())).thenReturn("mock-jwt-string");
 
 
         // 2. 執行階段 (Act)
@@ -106,7 +106,7 @@ public class UsersServiceTest {
         userCreateRq.setCarType("TOYOTA");
 
         // 模擬信箱重複的情境
-        when(userDao.existEmail(any(String.class))).thenReturn(true);
+        when(userDao.existEmail(any())).thenReturn(true);
 
         // 執行 usersService.create 驗證拋出的錯誤是否為 HandleException，並保存成變數 ex
         HandleException ex = assertThrows(

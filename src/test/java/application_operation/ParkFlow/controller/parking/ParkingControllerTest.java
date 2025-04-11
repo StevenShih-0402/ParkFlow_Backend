@@ -69,7 +69,7 @@ public class ParkingControllerTest {
         parkingQuotaCreateRq.setStartDate(LocalDateTime.parse("2025-04-14T00:00:00"));
         parkingQuotaCreateRq.setTotalSlots(15);
 
-        when(parkingService.createParkingQuota(any(ParkingQuotaCreateRq.class))).thenReturn(parkingQuotaDto);
+        when(parkingService.createParkingQuota(any())).thenReturn(parkingQuotaDto);
 
         // 確認 Data 是否有內容，並回傳 0000 Success
         mockMvc.perform(post(createParkingQuotaPath)
@@ -123,7 +123,7 @@ public class ParkingControllerTest {
         parkingQuotaUpdateRq.setId(1);
         parkingQuotaUpdateRq.setTotalSlots(30);
 
-        when(parkingService.updateParkingQuota(any(ParkingQuotaUpdateRq.class))).thenReturn(parkingQuotaDto);
+        when(parkingService.updateParkingQuota(any())).thenReturn(parkingQuotaDto);
 
         // 確認 Data 是否有內容，並回傳 0000 Success
         mockMvc.perform(put(updateParkingQuotaPath)

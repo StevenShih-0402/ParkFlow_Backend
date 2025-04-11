@@ -99,7 +99,7 @@ public class UsersControllerTest {
         userCreateRq.setCarType("TOYOTA");
 
         // 模擬 Service 執行後回傳結果的流程
-        when(usersService.create(any(UserCreateRq.class))).thenReturn(token);
+        when(usersService.create(any())).thenReturn(token);
 
         // 確認 Data 是否有內容，並回傳 0000 Success
         assertSuccessMessage(post(registerPath), userCreateRq);
@@ -146,7 +146,7 @@ public class UsersControllerTest {
         UserLoginRq userLoginRq = new UserLoginRq();
         userLoginRq.setEmail("xm@gmail.com");
 
-        when(usersService.login(any(UserLoginRq.class))).thenReturn(token);
+        when(usersService.login(any())).thenReturn(token);
 
         // 確認 Data 是否有內容，並回傳 0000 Success
         assertSuccessMessage(post(loginPath), userLoginRq);
@@ -165,7 +165,7 @@ public class UsersControllerTest {
         assertInputErrorMessage(
                 post(loginPath),
                 emailErrorRq,
-                messageSource.getMessage("email.format", null, Locale.TAIWAN)
+                "輸入格式錯誤：必須是形式完整的電子郵件位址。"
         );
     }
 
@@ -269,7 +269,7 @@ public class UsersControllerTest {
         userUpdateRq.setCarNumber("CBA-4321");
         userUpdateRq.setCarType("MAZDA");
 
-        when(usersService.update(any(UserUpdateRq.class))).thenReturn(userQueryDto);
+        when(usersService.update(any())).thenReturn(userQueryDto);
 
         // 確認 Data 是否有內容，並回傳 0000 Success
         mockMvc.perform(put(updatePath)
