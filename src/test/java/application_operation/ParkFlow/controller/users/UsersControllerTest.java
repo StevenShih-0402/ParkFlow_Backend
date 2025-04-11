@@ -13,7 +13,6 @@ import application_operation.ParkFlow.validTag.englishname.EnglishName;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
-import jakarta.validation.constraints.Email;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,7 +30,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.security.Key;
 import java.util.Date;
-import java.util.Locale;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -50,9 +48,6 @@ public class UsersControllerTest {
 
     @Mock
     private UsersService usersService;
-
-    @Mock
-    private MessageSource messageSource;
 
     @InjectMocks
     private UsersController usersController;
