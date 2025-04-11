@@ -1,8 +1,11 @@
 package application_operation.ParkFlow.controller.parking;
 
-import application_operation.ParkFlow.controller.parking.payload.ParkingQuotaCreateRq;
-import application_operation.ParkFlow.controller.parking.payload.ParkingQuotaUpdateRq;
+import application_operation.ParkFlow.controller.parking.payload.*;
 import application_operation.ParkFlow.dto.parking.create.ParkingQuotaDto;
+import application_operation.ParkFlow.dto.parking.create.ParkingRequestDto;
+import application_operation.ParkFlow.dto.parking.queryUserParkingRequest.ReUserParkingRequestDto;
+import application_operation.ParkFlow.dto.parking.update.UpdateParkingRequestDto;
+import application_operation.ParkFlow.enums.ParkingRequestEnum;
 import application_operation.ParkFlow.enums.ResponseCodeEnum;
 import application_operation.ParkFlow.exceptionHandler.GlobalExceptionHandler;
 import application_operation.ParkFlow.service.parking.ParkingService;
@@ -19,7 +22,11 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.math.BigInteger;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -40,6 +47,10 @@ public class ParkingControllerTest {
     @InjectMocks
     private ParkingController parkingController;
 
+    private static final String create = "/v1/parking/create-parking-request";
+    private static final String update = "/v1/parking/update-parking-request";
+    private static final String queryUserParkingRequest = "/v1/parking/query-user-parking-request";
+    private static final String queryFmParkingRequest = "/v1/parking/query-fm-parking-request";
     private static final String createParkingQuotaPath = "/v1/parking/create-parking-quota";
     private static final String updateParkingQuotaPath = "/v1/parking/update-parking-quota";
 
@@ -154,6 +165,73 @@ public class ParkingControllerTest {
                         .characterEncoding("utf-8")
                         .content(objectMapper.writeValueAsString(idNullRq))
                 )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(ResponseCodeEnum.INPUT_ERROR.getResponseCode()))
+                .andExpect(jsonPath("$.data").doesNotExist());
+    }
+
+    @Test
+    @DisplayName("ParkingController.create()_success")
+    public void create_success() throws Exception {
+
+        String strToStartTime = "2025-04-06T00:00:00";
+        String strToApplicationTime = "2025-04-02T14:39:43";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+        LocalDateTime startTime = LocalDateTime.parse(strToStartTime, formatter);
+        LocalDateTime applicationTime = LocalDateTime.parse(strToApplicationTime, formatter);
+
+        when(parkingService.create(any())).thenReturn(
+                ParkingRequestDto.builder()
+                        .Id(1)
+                        .applicationTime(applicationTime)
+                        .startDate(startTime)
+                        .cellPhone("0912345678")
+                        .carNumber("EAF-2200")
+                        .carType("TOYOTA")
+                        .build()
+        );
+
+        ParkingRequestCreateRq parkingRequestCreateRq = ParkingRequestCreateRq.builder()
+                .startDate(startTime)
+                .cellPhone("0912345678")
+                .carNumber("EAF-2200")
+                .carType("TOYOTA")
+                .build();
+
+        mockMvc.perform(post(create)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("utf-8")
+                        .content(objectMapper.writeValueAsString(parkingRequestCreateRq)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(ResponseCodeEnum.SUCCESS.getResponseCode()))
+                .andExpect(jsonPath("$.data").exists())
+                .andExpect(jsonPath("$.data.startDate").value(startTime.format(formatter)))
+                .andExpect(jsonPath("$.data.cellPhone").value("0912345678"))
+                .andExpect(jsonPath("$.data.carNumber").value("EAF-2200"))
+                .andExpect(jsonPath("$.data.carType").value("TOYOTA"));
+    }
+
+    @Test
+    @DisplayName("ParkingController.create()_failed")
+    public void create_failed() throws Exception {
+
+        String strToStartTime = "2025-04-06T00:00:00";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+        LocalDateTime startTime = LocalDateTime.parse(strToStartTime, formatter);
+
+        ParkingRequestCreateRq parkingRequestCreateRq = ParkingRequestCreateRq.builder()
+                .startDate(startTime)
+                .cellPhone("091234567")
+                .carNumber("EAF-2200")
+                .carType("TOYOTA")
+                .build();
+
+        mockMvc.perform(post(create)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("utf-8")
+                        .content(objectMapper.writeValueAsString(parkingRequestCreateRq)))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(ResponseCodeEnum.INPUT_ERROR.getResponseCode()))
