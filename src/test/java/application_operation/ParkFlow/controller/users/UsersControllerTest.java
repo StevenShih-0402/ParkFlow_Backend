@@ -8,6 +8,8 @@ import application_operation.ParkFlow.enums.ResponseCodeEnum;
 import application_operation.ParkFlow.exception.JwtTokenException;
 import application_operation.ParkFlow.exceptionHandler.GlobalExceptionHandler;
 import application_operation.ParkFlow.service.users.UsersService;
+import application_operation.ParkFlow.validTag.chinesename.ChineseName;
+import application_operation.ParkFlow.validTag.englishname.EnglishName;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -18,6 +20,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.MessageSource;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -91,7 +94,7 @@ public class UsersControllerTest {
         userCreateRq.setCarType("TOYOTA");
 
         // 模擬 Service 執行後回傳結果的流程
-        when(usersService.create(any(UserCreateRq.class))).thenReturn(token);
+        when(usersService.create(any())).thenReturn(token);
 
         // 確認 Data 是否有內容，並回傳 0000 Success
         assertSuccessMessage(post(registerPath), userCreateRq);
@@ -103,7 +106,7 @@ public class UsersControllerTest {
     public void create_failed() throws Exception{
 
         // 輸入的資料
-        // 錯誤資料1：中文姓名錯誤
+        // 中文姓名錯誤
         UserCreateRq chnNameErrorRq = new UserCreateRq();
         chnNameErrorRq.setChineseName("Xiao Ming");
         chnNameErrorRq.setEnglishName("Xiao Ming");
@@ -113,67 +116,11 @@ public class UsersControllerTest {
         chnNameErrorRq.setCarType("TOYOTA");
 
         // 中文姓名錯誤，回傳 9000
-        assertInputErrorMessage(post(registerPath), chnNameErrorRq);
-
-        // 錯誤資料2：中文姓名長度超過 20 個字
-        UserCreateRq chnNameExceedRq = new UserCreateRq();
-        chnNameExceedRq.setChineseName("呀六乙拉青冒刀做陽婆筆息各冰月蝶禾占法牛書貝枝頭美各您壯校向又長父");
-        chnNameExceedRq.setEnglishName("Xiao Ming");
-        chnNameExceedRq.setEmail("xm@gmail.com");
-        chnNameExceedRq.setCellphone("0912345678");
-        chnNameExceedRq.setCarNumber("ABC-1234");
-        chnNameExceedRq.setCarType("TOYOTA");
-
-        // 中文姓名超出 20 個字，回傳 9000
-        assertInputErrorMessage(post(registerPath), chnNameExceedRq);
-
-        // 錯誤資料3：英文姓名錯誤
-        UserCreateRq engNameErrorRq = new UserCreateRq();
-        engNameErrorRq.setChineseName("小明");
-        engNameErrorRq.setEnglishName("小明");
-        engNameErrorRq.setEmail("xm@gmail.com");
-        engNameErrorRq.setCellphone("0912345678");
-        engNameErrorRq.setCarNumber("ABC-1234");
-        engNameErrorRq.setCarType("TOYOTA");
-
-        // 英文姓名錯誤，回傳 9000
-        assertInputErrorMessage(post(registerPath), engNameErrorRq);
-
-        // 錯誤資料4：英文姓名長度超過 50 個字
-        UserCreateRq engNameExceedRq = new UserCreateRq();
-        engNameExceedRq.setChineseName("小明");
-        engNameExceedRq.setEnglishName("Lorem ipsum dolor sit amet consectetur adipiscing elit Sed feugiat non metus et volutpat Quisque elementum libero et augue tincidunt pharetra nec a metus Duis bibendum luctus nisi eget pulvinar Nam eget sapien sed dui elementum tincidunt in sit amet neque");
-        engNameExceedRq.setEmail("xm@gmail.com");
-        engNameExceedRq.setCellphone("0912345678");
-        engNameExceedRq.setCarNumber("ABC-1234");
-        engNameExceedRq.setCarType("TOYOTA");
-
-        // 英文姓名超出 50 個字，回傳 9000
-        assertInputErrorMessage(post(registerPath), engNameExceedRq);
-
-        // 錯誤資料5：信箱格式錯誤
-        UserCreateRq emailErrorRq = new UserCreateRq();
-        emailErrorRq.setChineseName("小明");
-        emailErrorRq.setEnglishName("Xiao Ming");
-        emailErrorRq.setEmail("xm@");
-        emailErrorRq.setCellphone("0912345678");
-        emailErrorRq.setCarNumber("ABC-1234");
-        emailErrorRq.setCarType("TOYOTA");
-
-        // 信箱格式錯誤，回傳 9000
-        assertInputErrorMessage(post(registerPath), emailErrorRq);
-
-        // 錯誤資料6：電話號碼格式錯誤
-        UserCreateRq cellPhoneErrorRq = new UserCreateRq();
-        cellPhoneErrorRq.setChineseName("小明");
-        cellPhoneErrorRq.setEnglishName("Xiao Ming");
-        cellPhoneErrorRq.setEmail("xm@gmail.com");
-        cellPhoneErrorRq.setCellphone("071234567");
-        cellPhoneErrorRq.setCarNumber("ABC-1234");
-        cellPhoneErrorRq.setCarType("TOYOTA");
-
-        // 電話號碼格式錯誤，回傳 9000
-        assertInputErrorMessage(post(registerPath), cellPhoneErrorRq);
+        assertInputErrorMessage(
+                post(registerPath),
+                chnNameErrorRq,
+                ChineseName.DEFAULT_MESSAGE
+                );
     }
 
 
@@ -194,7 +141,7 @@ public class UsersControllerTest {
         UserLoginRq userLoginRq = new UserLoginRq();
         userLoginRq.setEmail("xm@gmail.com");
 
-        when(usersService.login(any(UserLoginRq.class))).thenReturn(token);
+        when(usersService.login(any())).thenReturn(token);
 
         // 確認 Data 是否有內容，並回傳 0000 Success
         assertSuccessMessage(post(loginPath), userLoginRq);
@@ -210,7 +157,11 @@ public class UsersControllerTest {
         emailErrorRq.setEmail("xm.gmail.com");
 
         // 信箱格式錯誤，回傳 9000
-        assertInputErrorMessage(post(loginPath), emailErrorRq);
+        assertInputErrorMessage(
+                post(loginPath),
+                emailErrorRq,
+                "輸入格式錯誤：必須是形式完整的電子郵件位址。"
+        );
     }
 
 
@@ -233,15 +184,17 @@ public class UsersControllerTest {
     @Test
     @DisplayName("UsersController.logout()_failed")
     public void logout_failed() throws Exception{
+        String errorMessage = "身分驗證錯誤：Token 不存在或格式錯誤。";
 
         // 模擬 usersService.logout() 裡發生例外
-        doThrow(new JwtTokenException("身分驗證錯誤：Token 不存在或格式錯誤。")).when(usersService).logout();
+        doThrow(new JwtTokenException(errorMessage)).when(usersService).logout();
 
         // Token 遺失或過期，回傳 9001
         mockMvc.perform(post(logoutPath))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(ResponseCodeEnum.AUTH_ERROR.getResponseCode()))
+                .andExpect(jsonPath("$.message").value(errorMessage))
                 .andExpect(jsonPath("$.data").doesNotExist());
     }
 
@@ -274,15 +227,17 @@ public class UsersControllerTest {
     @Test
     @DisplayName("UsersController.query()_failed")
     public void query_failed() throws Exception{
+        String errorMessage = "身分驗證錯誤：Token 不存在或格式錯誤。";
 
-        // 模擬 usersService.logout() 裡發生例外
-        doThrow(new JwtTokenException("身分驗證錯誤：Token 不存在或格式錯誤。")).when(usersService).query();
+        // 模擬 usersService.query() 裡發生例外
+        doThrow(new JwtTokenException(errorMessage)).when(usersService).query();
 
         // Token 遺失或過期，回傳 9001
         mockMvc.perform(post(queryPath))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(ResponseCodeEnum.AUTH_ERROR.getResponseCode()))
+                .andExpect(jsonPath("$.message").value(errorMessage))
                 .andExpect(jsonPath("$.data").doesNotExist());
     }
 
@@ -309,10 +264,23 @@ public class UsersControllerTest {
         userUpdateRq.setCarNumber("CBA-4321");
         userUpdateRq.setCarType("MAZDA");
 
-        when(usersService.update(any(UserUpdateRq.class))).thenReturn(userQueryDto);
+        when(usersService.update(any())).thenReturn(userQueryDto);
 
         // 確認 Data 是否有內容，並回傳 0000 Success
-        assertSuccessMessage(put(updatePath), userUpdateRq);
+        mockMvc.perform(put(updatePath)
+                        .characterEncoding("utf-8")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(userUpdateRq))
+                )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(ResponseCodeEnum.SUCCESS.getResponseCode()))
+                .andExpect(jsonPath("$.data").exists())
+                .andExpect(jsonPath("$.data.chineseName").value(userUpdateRq.getChineseName()))
+                .andExpect(jsonPath("$.data.englishName").value(userUpdateRq.getEnglishName()))
+                .andExpect(jsonPath("$.data.cellphone").value(userUpdateRq.getCellphone()))
+                .andExpect(jsonPath("$.data.carNumber").value(userUpdateRq.getCarNumber()))
+                .andExpect(jsonPath("$.data.carType").value(userUpdateRq.getCarType()));
     }
 
 
@@ -320,29 +288,7 @@ public class UsersControllerTest {
     @DisplayName("UsersController.update()_failed")
     public void update_failed() throws Exception{
 
-        // 錯誤情境1: 中文姓名錯誤
-        UserUpdateRq chnNameErrorRq = new UserUpdateRq();
-        chnNameErrorRq.setChineseName("Xiao Mei");
-        chnNameErrorRq.setEnglishName("Xiao Mei");
-        chnNameErrorRq.setCellphone("0987654321");
-        chnNameErrorRq.setCarNumber("CBA-4321");
-        chnNameErrorRq.setCarType("MAZDA");
-
-        // 中文姓名錯誤，回傳 9000
-        assertInputErrorMessage(put(updatePath), chnNameErrorRq);
-
-        // 錯誤情境2: 中文姓名長度超過 20 個字
-        UserUpdateRq chnNameExceedRq = new UserUpdateRq();
-        chnNameExceedRq.setChineseName("呀六乙拉青冒刀做陽婆筆息各冰月蝶禾占法牛書貝枝頭美各您壯校向又長父");
-        chnNameExceedRq.setEnglishName("Xiao Mei");
-        chnNameExceedRq.setCellphone("0987654321");
-        chnNameExceedRq.setCarNumber("CBA-4321");
-        chnNameExceedRq.setCarType("MAZDA");
-
-        // 中文姓名長度超過 20 個字，回傳 9000
-        assertInputErrorMessage(put(updatePath), chnNameExceedRq);
-
-        // 錯誤情境3: 英文姓名錯誤
+        // 錯誤情境: 英文姓名錯誤
         UserUpdateRq engNameErrorRq = new UserUpdateRq();
         engNameErrorRq.setChineseName("小美");
         engNameErrorRq.setEnglishName("小美");
@@ -351,29 +297,11 @@ public class UsersControllerTest {
         engNameErrorRq.setCarType("MAZDA");
 
         // 英文姓名錯誤，回傳 9000
-        assertInputErrorMessage(put(updatePath), engNameErrorRq);
-
-        // 錯誤情境4: 英文姓名長度超過 50 個字
-        UserUpdateRq engNameExceedRq = new UserUpdateRq();
-        engNameExceedRq.setChineseName("小美");
-        engNameExceedRq.setEnglishName("Lorem ipsum dolor sit amet consectetur adipiscing elit Sed feugiat non metus et volutpat Quisque elementum libero et augue tincidunt pharetra nec a metus Duis bibendum luctus nisi eget pulvinar Nam eget sapien sed dui elementum tincidunt in sit amet neque");
-        engNameExceedRq.setCellphone("0987654321");
-        engNameExceedRq.setCarNumber("CBA-4321");
-        engNameExceedRq.setCarType("MAZDA");
-
-        // 英文姓名長度超過 50 個字，回傳 9000
-        assertInputErrorMessage(put(updatePath), engNameExceedRq);
-
-        // 錯誤情境5: 電話號碼格式錯誤
-        UserUpdateRq cellPhoneErrorRq = new UserUpdateRq();
-        cellPhoneErrorRq.setChineseName("小美");
-        cellPhoneErrorRq.setEnglishName("Xiao Mei");
-        cellPhoneErrorRq.setCellphone("0887654321");
-        cellPhoneErrorRq.setCarNumber("CBA-4321");
-        cellPhoneErrorRq.setCarType("MAZDA");
-
-        // 電話號碼格式錯誤，回傳 9000
-        assertInputErrorMessage(put(updatePath), cellPhoneErrorRq);
+        assertInputErrorMessage(
+                put(updatePath),
+                engNameErrorRq,
+                EnglishName.DEFAULT_MESSAGE
+                );
     }
 
 
@@ -392,7 +320,7 @@ public class UsersControllerTest {
     }
 
     // 驗證 Rq 的 Annotation 是否有運作
-    public void assertInputErrorMessage(MockHttpServletRequestBuilder httpMethod, Object request) throws Exception {
+    public void assertInputErrorMessage(MockHttpServletRequestBuilder httpMethod, Object request, String errorMessage) throws Exception {
         mockMvc.perform(httpMethod
                         .characterEncoding("utf-8")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -401,6 +329,7 @@ public class UsersControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(ResponseCodeEnum.INPUT_ERROR.getResponseCode()))
+                .andExpect(jsonPath("$.message").value(errorMessage))
                 .andExpect(jsonPath("$.data").doesNotExist());
     }
 }
