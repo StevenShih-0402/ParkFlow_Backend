@@ -104,6 +104,12 @@ public class ParkingService {
         ParkingRequestDto parkingRequestDto = parkingDao.saveParkingRequest(parkingRequestCreateDto, usersBaseDto);
 
         //send email
+        sendRequestMail(parkingRequestDto, usersBaseDto);
+
+        return parkingRequestDto;
+    }
+
+    public void sendRequestMail(ParkingRequestDto parkingRequestDto, UsersBaseDto usersBaseDto) {
         if(isSendRequestMail) {
             SendEmailDto sendEmailDto = userDao.queryFMEmailData();
 
@@ -130,8 +136,6 @@ public class ParkingService {
 
             emailConfig.consumeEmail(emailDto);
         }
-
-        return parkingRequestDto;
     }
 
     public UpdateParkingRequestDto update(ParkingRequestUpdateRq parkingRequestUpdateRq) {
