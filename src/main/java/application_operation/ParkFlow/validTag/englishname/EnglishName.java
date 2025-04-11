@@ -10,7 +10,9 @@ import java.lang.annotation.*;
 @Target({ ElementType.FIELD, ElementType.PARAMETER })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface EnglishName {
-    String message() default "輸入格式錯誤：英文姓名欄位只能填入英文、空格和連接線。";
+    String DEFAULT_MESSAGE = "輸入格式錯誤：英文姓名欄位只能填入英文、空格和連接線。";
+
+    String message() default DEFAULT_MESSAGE;
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

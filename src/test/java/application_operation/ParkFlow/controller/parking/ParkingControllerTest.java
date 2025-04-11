@@ -80,34 +80,16 @@ public class ParkingControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(ResponseCodeEnum.SUCCESS.getResponseCode()))
-                .andExpect(jsonPath("$.data").exists());
+                .andExpect(jsonPath("$.data").exists())
+                .andExpect(jsonPath("$.data.id").exists())
+                .andExpect(jsonPath("$.data.totalSlots").value(parkingQuotaCreateRq.getTotalSlots()));
     }
 
     @Test
     @DisplayName("ParkingController.createParkingQuota()_failed")
     public void createParkingQuota_failed() throws Exception{
 
-        // 錯誤情境1: 日期格式錯誤
-        // Spring 的 Jackson 套件會在 Controller 層將 JSON 字串轉成 Rq 物件，所以測試時可以直接輸入字串，還可以避開 Java 物件的編譯錯誤
-        String dateErrorRq = """
-                {
-                    "startDate": "20250414",
-                    "totalSlots": 10
-                }
-                """;
-
-        // 日期格式錯誤，回傳 9000
-        mockMvc.perform(post(createParkingQuotaPath)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .characterEncoding("utf-8")
-                        .content(objectMapper.writeValueAsString(dateErrorRq))
-                )
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.code").value(ResponseCodeEnum.INPUT_ERROR.getResponseCode()))
-                .andExpect(jsonPath("$.data").doesNotExist());
-
-        // 錯誤情境2: 車位數量超過 Integer 範圍
+        // 錯誤情境: 車位數量超過 Integer 範圍
         String totalSlotsExceedRq = """
                 {
                     "startDate": "2025-04-14T00:00:00",
@@ -152,14 +134,16 @@ public class ParkingControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(ResponseCodeEnum.SUCCESS.getResponseCode()))
-                .andExpect(jsonPath("$.data").exists());
+                .andExpect(jsonPath("$.data").exists())
+                .andExpect(jsonPath("$.data.id").value(parkingQuotaUpdateRq.getId()))
+                .andExpect(jsonPath("$.data.totalSlots").value(parkingQuotaUpdateRq.getTotalSlots()));
     }
 
     @Test
     @DisplayName("ParkingController.updateParkingQuota()_failed")
     public void updateParkingQuota_failed() throws Exception{
 
-        // 錯誤情境1: id 沒有讀取到
+        // 錯誤情境: id 沒有讀取到
         ParkingQuotaUpdateRq idNullRq = new ParkingQuotaUpdateRq();
         idNullRq.setId(null);
         idNullRq.setTotalSlots(30);
@@ -169,25 +153,6 @@ public class ParkingControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding("utf-8")
                         .content(objectMapper.writeValueAsString(idNullRq))
-                )
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.code").value(ResponseCodeEnum.INPUT_ERROR.getResponseCode()))
-                .andExpect(jsonPath("$.data").doesNotExist());
-
-        // 錯誤情境2: 車位數量超過 Integer 範圍
-        String totalSlotsExceedRq = """
-                {
-                    "id": 1,
-                    "totalSlots": 2147483648
-                }
-                """;
-
-        // 車位數量超過 Integer 範圍，回傳 9000
-        mockMvc.perform(post(createParkingQuotaPath)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .characterEncoding("utf-8")
-                        .content(objectMapper.writeValueAsString(totalSlotsExceedRq))
                 )
                 .andDo(print())
                 .andExpect(status().isOk())

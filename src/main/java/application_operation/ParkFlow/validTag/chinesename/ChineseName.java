@@ -10,7 +10,9 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = ChineseNameValidator.class) // 指定驗證邏輯
 public @interface ChineseName {
-    String message() default "輸入格式錯誤：中文姓名欄位只能填入中文。";
+    String DEFAULT_MESSAGE = "輸入格式錯誤：中文姓名欄位只能填入中文。";
+
+    String message() default DEFAULT_MESSAGE;
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }
