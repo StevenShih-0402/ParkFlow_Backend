@@ -41,24 +41,25 @@ public class ParkingServiceTest {
     @Test
     @DisplayName("ParkingService.create()_success")
     public void create_success() throws Exception {
+        // Jwt Token 驗證
         doNothing().when(jwtUtil).validateToken();
-
+        //申請日期檢查
         when(validUtils.isValidRequest(any(), any(), any())).thenReturn(true);
-
+        //取得使用者資訊
         when(jwtUtil.getUserBase()).thenReturn(UsersBaseDto.builder()
                 .userId(1)
                 .email("min@gmail.com")
                 .roleName("User")
                 .build());
-
+        //驗證使用者權限
         doNothing().when(validUtils).isUser(any());
-
+        // 日期是否在今天以後
         doNothing().when(validUtils).isBeforeDate(any());
-
+        // 日期是否有重複
         when(parkingDao.existsByStartDate(any())).thenReturn(true);
-
+        //檢查相同使用者是否重複申請
         when(parkingDao.findParkingRequestByApplicantId(any(), any())).thenReturn(true);
-
+        //檢查申請是否到達上限
         when(parkingDao.findParkingRequestCheckQuota(any())).thenReturn(true);
 
         String strToStartTime = "2025-04-06T00:00:00";
@@ -66,7 +67,7 @@ public class ParkingServiceTest {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
         LocalDateTime startTime = LocalDateTime.parse(strToStartTime, formatter);
         LocalDateTime applicationTime = LocalDateTime.parse(strToApplicationTime, formatter);
-
+        //執行寫入
         when(parkingDao.saveParkingRequest(any(), any())).thenReturn(ParkingRequestDto.builder()
                 .Id(1)
                 .applicationTime(applicationTime)
@@ -96,20 +97,21 @@ public class ParkingServiceTest {
     @Test
     @DisplayName("ParkingService.create()_failed")
     public void create_failed() throws Exception {
+        // Jwt Token 驗證
         doNothing().when(jwtUtil).validateToken();
-
+        //申請日期檢查
         when(validUtils.isValidRequest(any(), any(), any())).thenReturn(true);
-
+        //取得使用者資訊
         when(jwtUtil.getUserBase()).thenReturn(UsersBaseDto.builder()
                 .userId(1)
                 .email("min@gmail.com")
                 .roleName("User")
                 .build());
-
+        //驗證使用者權限
         doNothing().when(validUtils).isUser(any());
-
+        // 日期是否在今天以後
         doNothing().when(validUtils).isBeforeDate(any());
-
+        // 日期是否有重複
         when(parkingDao.existsByStartDate(any())).thenReturn(false);
 
         String strToStartTime = "2025-04-06T00:00:00";
