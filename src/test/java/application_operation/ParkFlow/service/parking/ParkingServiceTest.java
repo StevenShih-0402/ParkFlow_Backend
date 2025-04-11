@@ -1,9 +1,13 @@
 package application_operation.ParkFlow.service.parking;
 
 import application_operation.ParkFlow.controller.parking.payload.ParkingRequestCreateRq;
+import application_operation.ParkFlow.controller.parking.payload.ParkingRequestUpdateRq;
 import application_operation.ParkFlow.dao.parking.ParkingDao;
 import application_operation.ParkFlow.dto.UsersBaseDto;
 import application_operation.ParkFlow.dto.parking.create.ParkingRequestDto;
+import application_operation.ParkFlow.dto.parking.update.UpdateParkingRequestDto;
+import application_operation.ParkFlow.entity.ParkingRequestEntity;
+import application_operation.ParkFlow.enums.ParkingRequestEnum;
 import application_operation.ParkFlow.enums.ResponseCodeEnum;
 import application_operation.ParkFlow.exception.HandleException;
 import application_operation.ParkFlow.jwtToken.JwtUtil;
@@ -18,6 +22,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -40,7 +46,7 @@ public class ParkingServiceTest {
 
     @Test
     @DisplayName("ParkingService.create()_success")
-    public void create_success() throws Exception {
+    public void create_success() {
         // Jwt Token 驗證
         doNothing().when(jwtUtil).validateToken();
         //申請日期檢查
@@ -96,7 +102,7 @@ public class ParkingServiceTest {
 
     @Test
     @DisplayName("ParkingService.create()_failed")
-    public void create_failed() throws Exception {
+    public void create_failed() {
         // Jwt Token 驗證
         doNothing().when(jwtUtil).validateToken();
         //申請日期檢查
@@ -134,5 +140,86 @@ public class ParkingServiceTest {
         // 驗證錯誤碼
         Assertions.assertEquals(ResponseCodeEnum.BUSINESS_ERROR.getResponseCode(), exception.getCode());
         Assertions.assertEquals("業務邏輯錯誤：本週尚未設定停車上限，無法申請。", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("ParkingService.update()_success")
+    public void update_success() {
+        // Jwt Token 驗證
+        doNothing().when(jwtUtil).validateToken();
+        //取得使用者資訊
+        when(jwtUtil.getUserBase()).thenReturn(UsersBaseDto.builder()
+                .userId(1)
+                .email("min@gmail.com")
+                .roleName("User")
+                .build());
+        //驗證使用者權限
+        doNothing().when(validUtils).isFM(any());
+        // 資料庫是否有對應的內容
+        when(parkingDao.existsByParkingRequestId(any())).thenReturn(true);
+
+        List<ParkingRequestEntity> mockList = new ArrayList<>();
+        ParkingRequestEntity entity = new ParkingRequestEntity();
+        entity.setId(1);
+        entity.setCellPhone("0912345678");
+        entity.setCarNumber("EAF-2200");
+        entity.setCarType("TOYOTA");
+        entity.setStatus(ParkingRequestEnum.APPROVED);
+        mockList.add(entity);
+
+        when(parkingDao.findParkingRequestById(any())).thenReturn(mockList);
+
+        when(parkingDao.updateParkingRequest(any(), any(), any())).thenReturn(UpdateParkingRequestDto.builder()
+                .id(1)
+                .status(ParkingRequestEnum.APPROVED)
+                .parkingSlotNumber(10)
+                .build()
+        );
+
+        ParkingRequestUpdateRq parkingRequestUpdateRq = ParkingRequestUpdateRq.builder()
+                .id(1)
+                .status(ParkingRequestEnum.APPROVED)
+                .parkingSlotNumber(10)
+                .build();
+
+        UpdateParkingRequestDto updateParkingRequestDto = parkingService.update(parkingRequestUpdateRq);
+
+        Assertions.assertNotNull(updateParkingRequestDto);
+        Assertions.assertEquals(1, updateParkingRequestDto.getId());
+        Assertions.assertEquals(ParkingRequestEnum.APPROVED, updateParkingRequestDto.getStatus());
+        Assertions.assertEquals(10, updateParkingRequestDto.getParkingSlotNumber());
+    }
+
+    @Test
+    @DisplayName("ParkingService.update()_failed")
+    public void update_failed() {
+        // Jwt Token 驗證
+        doNothing().when(jwtUtil).validateToken();
+        //取得使用者資訊
+        when(jwtUtil.getUserBase()).thenReturn(UsersBaseDto.builder()
+                .userId(1)
+                .email("min@gmail.com")
+                .roleName("User")
+                .build());
+        //驗證使用者權限
+        doNothing().when(validUtils).isFM(any());
+        // 資料庫是否有對應的內容
+        when(parkingDao.existsByParkingRequestId(any())).thenReturn(false);
+
+        ParkingRequestUpdateRq parkingRequestUpdateRq = ParkingRequestUpdateRq.builder()
+                .id(1)
+                .status(ParkingRequestEnum.APPROVED)
+                .parkingSlotNumber(10)
+                .build();
+
+        // 驗證是否有拋出 NaviException
+        HandleException exception = Assertions.assertThrows(HandleException.class, () ->
+                // 執行Service測試
+                parkingService.update(parkingRequestUpdateRq)
+        );
+
+        // 驗證錯誤碼
+        Assertions.assertEquals(ResponseCodeEnum.DATABASE_ERROR.getResponseCode(), exception.getCode());
+        Assertions.assertEquals("資料庫內容錯誤：找不到對應的停車位申請紀錄。", exception.getMessage());
     }
 }
