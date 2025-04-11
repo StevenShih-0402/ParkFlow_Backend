@@ -9,11 +9,12 @@ import application_operation.ParkFlow.service.users.UsersService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/v1/users")
+@RequestMapping(path = "/v1/users", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
 public class UsersController {
 
@@ -52,7 +53,7 @@ public class UsersController {
     @PostMapping("/query")
     @Operation(summary = "查詢使用者資料", description = "查詢使用者資料")
     public ResponseEntity<SuccessResponse<UserQueryDto>> query(){
-        UserQueryDto userData = usersService.query();   // Jwt Token
+        UserQueryDto userData = usersService.query();
 
         return ResponseEntity.ok(SuccessResponse.<UserQueryDto>builder()
                 .data(userData)
