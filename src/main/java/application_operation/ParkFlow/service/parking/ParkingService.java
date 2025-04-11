@@ -169,6 +169,12 @@ public class ParkingService {
         UpdateParkingRequestDto updateParkingRequestDto = parkingDao.updateParkingRequest(parkingRequestEntities.get(0), parkingRequestUpdateDto, usersBaseDto);
 
         // send email
+        sendApplicationMail(parkingRequestEntities, parkingRequestUpdateRq);
+
+        return updateParkingRequestDto;
+    }
+
+    public void sendApplicationMail(List<ParkingRequestEntity> parkingRequestEntities, ParkingRequestUpdateRq parkingRequestUpdateRq) {
         if(isSendApplicationMail) {
             UsersBaseDto usersBaseDto1 = new UsersBaseDto();
             usersBaseDto1.setUserId(parkingRequestEntities.get(0).getApplicantId());
@@ -201,8 +207,6 @@ public class ParkingService {
 
             emailConfig.consumeEmail(emailDto);
         }
-
-        return updateParkingRequestDto;
     }
 
     public ReUserParkingRequestDto queryUserParkingRequest(QueryUserParkingRequestRq queryUserParkingRequestRq) {
