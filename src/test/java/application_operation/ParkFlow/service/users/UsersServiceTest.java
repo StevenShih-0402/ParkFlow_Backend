@@ -1,6 +1,7 @@
 package application_operation.ParkFlow.service.users;
 
 import application_operation.ParkFlow.controller.users.payload.UserCreateRq;
+import application_operation.ParkFlow.controller.users.payload.UserLoginRq;
 import application_operation.ParkFlow.dao.users.UserDao;
 import application_operation.ParkFlow.entity.UserEntity;
 import application_operation.ParkFlow.enums.ResponseCodeEnum;
@@ -43,7 +44,7 @@ public class UsersServiceTest {
         userCreateRq.setCarNumber("ABC-1234");
         userCreateRq.setCarType("TOYOTA");
 
-        // 模擬 DAO 層回傳的資料，因為這邊不能真的進入 DB。
+        // 建立 DAO 層回傳的資料，因為這邊不能真的進入 DB。
         UserEntity userEntity = new UserEntity();
         userEntity.setId(1);
         userEntity.setChineseName("小明");
@@ -103,5 +104,64 @@ public class UsersServiceTest {
 
         // 驗證錯誤訊息的內容
         assertEquals("業務邏輯錯誤：信箱不能重複註冊。", ex.getMessage());
+    }
+
+    @Test
+    @DisplayName("UsersService.login()_success")
+    public void login_success() {
+
+        // 建立 Rq
+        UserLoginRq userLoginRq = new UserLoginRq();
+        userLoginRq.setEmail("xm@gmail.com");
+
+        // 建立 DAO 層回傳的資料，因為這邊不能真的進入 DB。
+        UserEntity userEntity = new UserEntity();
+        userEntity.setId(1);
+        userEntity.setChineseName("小明");
+        userEntity.setEnglishName("Xiao Ming");
+        userEntity.setEmail("xm@gmail.com");
+        userEntity.setCellphone("0912345678");
+        userEntity.setCarNumber("ABC-1234");
+        userEntity.setCarType("TOYOTA");
+        userEntity.setRoleId(1);
+
+        // 模擬信箱已完成註冊的情境
+        when(userDao.existEmail(any())).thenReturn(true);
+
+        // 模擬 UserDao.queryUserByEmail() 執行後回傳結果的情境。
+        when(userDao.queryUserByEmail(any())).thenReturn(userEntity);
+
+        // 模擬生成 Jwt 的情境
+        when(jwtUtil.generateToken(any(), any())).thenReturn("mock-jwt-string");
+
+        // 執行 UsersService.login()。
+        String token = usersService.login(userLoginRq);
+
+        // 驗證 token 不是 Null
+        assertNotNull(token);
+    }
+
+    @Test
+    @DisplayName("UsersService.login()_failed")
+    public void login_failed() {
+        // 錯誤情境：信箱格式正確，但沒有註冊過
+        // 建立 Rq
+        UserLoginRq userLoginRq = new UserLoginRq();
+        userLoginRq.setEmail("xiaoming112233@gmail.com");
+
+        // 模擬信箱未完成註冊的情境
+        when(userDao.existEmail(any())).thenReturn(false);
+
+        // 執行 usersService.login 驗證拋出的錯誤是否為 HandleException，並保存成變數 ex
+        HandleException ex = assertThrows(
+                HandleException.class,
+                () -> usersService.login(userLoginRq)
+        );
+
+        // 驗證 ErrorMessage 的 code 是 0001
+        assertEquals(ResponseCodeEnum.REGISTER_REQ.getResponseCode(), ex.getCode());
+
+        // 驗證錯誤訊息的內容
+        assertEquals("身分驗證錯誤：請先註冊後再登入系統。", ex.getMessage());
     }
 }
