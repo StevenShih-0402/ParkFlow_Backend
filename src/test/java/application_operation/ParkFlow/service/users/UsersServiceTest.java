@@ -3,6 +3,8 @@ package application_operation.ParkFlow.service.users;
 import application_operation.ParkFlow.controller.users.payload.UserCreateRq;
 import application_operation.ParkFlow.controller.users.payload.UserLoginRq;
 import application_operation.ParkFlow.dao.users.UserDao;
+import application_operation.ParkFlow.dto.UsersBaseDto;
+import application_operation.ParkFlow.dto.users.UserQueryDto;
 import application_operation.ParkFlow.entity.UserEntity;
 import application_operation.ParkFlow.enums.ResponseCodeEnum;
 import application_operation.ParkFlow.exception.HandleException;
@@ -225,6 +227,80 @@ public class UsersServiceTest {
         verify(jwtUtil).validateToken();
         verify(jwtUtil, never()).extractTokenFromAuthHeader();
         verify(jwtUtil, never()).blacklistToken(any());
+
+        // 驗證錯誤訊息的內容
+        assertEquals(errorMessage, ex.getMessage());
+    }
+
+
+    @Test
+    @DisplayName("UsersService.query()_success")
+    public void query_success() {
+
+        // 建立存放 JWT 資訊的 DTO
+        UsersBaseDto usersBaseDto = new UsersBaseDto();
+        usersBaseDto.setUserId(1);
+        usersBaseDto.setRoleName("USER");
+
+        // 建立查詢後回傳的用戶資料
+        UserQueryDto userQueryDto = new UserQueryDto();
+        userQueryDto.setId(1);
+        userQueryDto.setChineseName("小明");
+        userQueryDto.setEnglishName("Xiao Ming");
+        userQueryDto.setEmail("xm@gmail.com");
+        userQueryDto.setCellphone("0912345678");
+        userQueryDto.setCarNumber("ABC-1234");
+        userQueryDto.setCarType("TOYOTA");
+
+        // 模擬 JWT 驗證成功的情境，這裡不會實際執行驗證動作
+        doNothing().when(jwtUtil).validateToken();
+
+        // 模擬從 JWT 取出用戶資訊並轉成 DTO 的情境
+        when(jwtUtil.getUserBase()).thenReturn(usersBaseDto);
+
+        // 模擬執行 queryUser() 回傳用戶資料的情境
+        when(userDao.queryUser(any())).thenReturn(userQueryDto);
+
+        // 執行 userService.query()
+        UserQueryDto result = usersService.query();
+
+        // 驗證三個方法是否都有執行
+        verify(jwtUtil).validateToken();
+        verify(jwtUtil).getUserBase();
+        verify(userDao).queryUser(any());
+
+        // 驗證回傳的 DTO 是否符合預期
+        assertEquals(result.getId(), userQueryDto.getId());
+        assertEquals(result.getChineseName(), userQueryDto.getChineseName());
+        assertEquals(result.getEnglishName(), userQueryDto.getEnglishName());
+        assertEquals(result.getEmail(), userQueryDto.getEmail());
+        assertEquals(result.getCellphone(), userQueryDto.getCellphone());
+        assertEquals(result.getCarNumber(), userQueryDto.getCarNumber());
+        assertEquals(result.getCarType(), userQueryDto.getCarType());
+    }
+
+
+    @Test
+    @DisplayName("UsersService.query()_failed")
+    public void query_failed() {
+
+        // 錯誤情境：標頭的 JWT 不存在或格式錯誤
+        // 模擬從標頭取出 JWT 的過程發生錯誤
+        String errorMessage = "身分驗證錯誤：Token 不存在或格式錯誤。";
+
+        doNothing().when(jwtUtil).validateToken();
+        doThrow(new JwtTokenException(errorMessage)).when(jwtUtil).getUserBase();
+
+        // 執行 usersService.query 驗證拋出的錯誤是否為 JwtTokenException，並保存成變數 ex
+        JwtTokenException ex = assertThrows(
+                JwtTokenException.class,
+                () -> usersService.query()
+        );
+
+        // 驗證只有 queryUser() 沒被執行過
+        verify(jwtUtil).validateToken();
+        verify(jwtUtil).getUserBase();
+        verify(userDao, never()).queryUser(any());
 
         // 驗證錯誤訊息的內容
         assertEquals(errorMessage, ex.getMessage());
