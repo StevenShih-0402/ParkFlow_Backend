@@ -54,7 +54,6 @@ public class ParkingServiceTest {
         //取得使用者資訊
         when(jwtUtil.getUserBase()).thenReturn(UsersBaseDto.builder()
                 .userId(1)
-                .email("min@gmail.com")
                 .roleName("User")
                 .build());
         //驗證使用者權限
@@ -110,7 +109,6 @@ public class ParkingServiceTest {
         //取得使用者資訊
         when(jwtUtil.getUserBase()).thenReturn(UsersBaseDto.builder()
                 .userId(1)
-                .email("min@gmail.com")
                 .roleName("User")
                 .build());
         //驗證使用者權限
@@ -150,7 +148,6 @@ public class ParkingServiceTest {
         //取得使用者資訊
         when(jwtUtil.getUserBase()).thenReturn(UsersBaseDto.builder()
                 .userId(1)
-                .email("min@gmail.com")
                 .roleName("User")
                 .build());
         //驗證使用者權限
@@ -198,7 +195,6 @@ public class ParkingServiceTest {
         //取得使用者資訊
         when(jwtUtil.getUserBase()).thenReturn(UsersBaseDto.builder()
                 .userId(1)
-                .email("min@gmail.com")
                 .roleName("User")
                 .build());
         //驗證使用者權限

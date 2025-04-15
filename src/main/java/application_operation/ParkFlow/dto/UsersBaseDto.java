@@ -10,7 +10,6 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UsersBaseDto {
-    private String email;
     private Integer userId;
     private String roleName;
 }
