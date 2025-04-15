@@ -7,6 +7,7 @@ import application_operation.ParkFlow.dto.UsersBaseDto;
 import application_operation.ParkFlow.dto.parking.create.ParkingRequestDto;
 import application_operation.ParkFlow.dto.parking.update.UpdateParkingRequestDto;
 import application_operation.ParkFlow.entity.ParkingRequestEntity;
+import application_operation.ParkFlow.enums.ErrorMessageEnum;
 import application_operation.ParkFlow.enums.ParkingRequestEnum;
 import application_operation.ParkFlow.enums.ResponseCodeEnum;
 import application_operation.ParkFlow.exception.HandleException;
@@ -137,7 +138,7 @@ public class ParkingServiceTest {
 
         // 驗證錯誤碼
         Assertions.assertEquals(ResponseCodeEnum.BUSINESS_ERROR.getResponseCode(), exception.getCode());
-        Assertions.assertEquals("業務邏輯錯誤：本週尚未設定停車上限，無法申請。", exception.getMessage());
+        Assertions.assertEquals(ErrorMessageEnum.NOT_SET_PARKING_QUOTA.getMessage(), exception.getMessage());
     }
 
     @Test
@@ -216,6 +217,6 @@ public class ParkingServiceTest {
 
         // 驗證錯誤碼
         Assertions.assertEquals(ResponseCodeEnum.DATABASE_ERROR.getResponseCode(), exception.getCode());
-        Assertions.assertEquals("資料庫內容錯誤：找不到對應的停車位申請紀錄。", exception.getMessage());
+        Assertions.assertEquals(ErrorMessageEnum.NOT_FOUND_PARKING_REQ.getMessage(), exception.getMessage());
     }
 }

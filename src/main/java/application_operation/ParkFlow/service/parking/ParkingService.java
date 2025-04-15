@@ -20,6 +20,7 @@ import application_operation.ParkFlow.dto.parking.update.ParkingRequestUpdateDto
 import application_operation.ParkFlow.dto.parking.update.UpdateParkingRequestDto;
 import application_operation.ParkFlow.entity.ParkingQuotaEntity;
 import application_operation.ParkFlow.entity.ParkingRequestEntity;
+import application_operation.ParkFlow.enums.ErrorMessageEnum;
 import application_operation.ParkFlow.enums.ParkingRequestEnum;
 import application_operation.ParkFlow.enums.ResponseCodeEnum;
 import application_operation.ParkFlow.exception.HandleException;
@@ -65,7 +66,9 @@ public class ParkingService {
                 .atStartOfDay(); // 計算下週開始時間
 
         if(!validUtils.isValidRequest(now, requestedDate, startDate)) {
-            throw new HandleException(ResponseCodeEnum.BUSINESS_ERROR.getResponseCode(), "業務邏輯錯誤：申請「下週」車位必須在本週四前申請；但如果申請「下下週及以後」的車位，則隨時可以申請。");
+            throw new HandleException(
+                    ResponseCodeEnum.BUSINESS_ERROR.getResponseCode(),
+                    ErrorMessageEnum.NEED_REQ_BEFORE_THIS_THURSDAY.getMessage());
         }
 
         // 取得使用者個人資料
@@ -87,17 +90,23 @@ public class ParkingService {
 
         // 檢查申請的日期是否已設定停車位上限
         if(!parkingDao.existsByStartDate(parkingRequestCreateDto.getStartDate())){
-            throw new HandleException(ResponseCodeEnum.BUSINESS_ERROR.getResponseCode(), "業務邏輯錯誤：本週尚未設定停車上限，無法申請。");
+            throw new HandleException(
+                    ResponseCodeEnum.BUSINESS_ERROR.getResponseCode(),
+                    ErrorMessageEnum.NOT_SET_PARKING_QUOTA.getMessage());
         }
 
         //檢查相同使用者是否重複申請
         if(!parkingDao.findParkingRequestByApplicantId(parkingRequestCreateDto, usersBaseDto)) {
-            throw new HandleException(ResponseCodeEnum.BUSINESS_ERROR.getResponseCode(), "業務邏輯錯誤：使用者已申請車位，無法重複申請。");
+            throw new HandleException(
+                    ResponseCodeEnum.BUSINESS_ERROR.getResponseCode(),
+                    ErrorMessageEnum.USER_ALREADY_RESERVED.getMessage());
         }
 
         //檢查申請是否到達上限
         if(!parkingDao.findParkingRequestCheckQuota(parkingRequestCreateDto)) {
-            throw new HandleException(ResponseCodeEnum.BUSINESS_ERROR.getResponseCode(), "業務邏輯錯誤：車位已被申請完畢，無法再受理申請。");
+            throw new HandleException(
+                    ResponseCodeEnum.BUSINESS_ERROR.getResponseCode(),
+                    ErrorMessageEnum.NO_PARKING.getMessage());
         }
 
         //寫入申請表
@@ -159,7 +168,9 @@ public class ParkingService {
 
         // 資料庫是否有對應的內容
         if(!parkingDao.existsByParkingRequestId(parkingRequestUpdateDto.getId())){
-            throw new HandleException(ResponseCodeEnum.DATABASE_ERROR.getResponseCode(), "資料庫內容錯誤：找不到對應的停車位申請紀錄。");
+            throw new HandleException(
+                    ResponseCodeEnum.DATABASE_ERROR.getResponseCode(),
+                    ErrorMessageEnum.NOT_FOUND_PARKING_REQ.getMessage());
         }
 
         // 取得申請資料
@@ -283,7 +294,9 @@ public class ParkingService {
 
         // 日期是否有重複
         if(parkingDao.existsByStartDate(parkingQuotaCreateDto.getStartDate())){
-            throw new HandleException(ResponseCodeEnum.BUSINESS_ERROR.getResponseCode(), "業務邏輯錯誤：日期資料不能重複。");
+            throw new HandleException(
+                    ResponseCodeEnum.BUSINESS_ERROR.getResponseCode(),
+                    ErrorMessageEnum.NOT_DUPLICATE_DATE.getMessage());
         }
 
         ParkingQuotaEntity saveEntity = parkingDao.saveParkingQuota(parkingQuotaCreateDto);
@@ -309,13 +322,17 @@ public class ParkingService {
 
         // 資料庫是否有對應的內容
         if(!parkingDao.existsByParkingQuotaId(parkingQuotaUpdateDto.getId())){
-            throw new HandleException(ResponseCodeEnum.DATABASE_ERROR.getResponseCode(), "資料庫內容錯誤：找不到對應的停車位上限設定紀錄。");
+            throw new HandleException(
+                    ResponseCodeEnum.DATABASE_ERROR.getResponseCode(),
+                    ErrorMessageEnum.NOT_FOUND_PARKING_QUOTA.getMessage());
         }
 
         // 更新後剩餘停車位是否會小於 0
         ParkingQuotaEntity parkingQuotaRecord = parkingDao.findParkingQuotaById(parkingQuotaUpdateDto.getId());
         if(parkingQuotaUpdateDto.getTotalSlots() - parkingDao.getAllReservedSlots(parkingQuotaRecord.getStartDate()) < 0){
-            throw new HandleException(ResponseCodeEnum.BUSINESS_ERROR.getResponseCode(), "業務邏輯錯誤：剩餘車位會小於 0。");
+            throw new HandleException(
+                    ResponseCodeEnum.BUSINESS_ERROR.getResponseCode(),
+                    ErrorMessageEnum.PARKING_QUOTA_LESS_THAN_ZERO.getMessage());
         }
 
         ParkingQuotaEntity updateEntity = parkingDao.updateParkingQuota(parkingQuotaUpdateDto);

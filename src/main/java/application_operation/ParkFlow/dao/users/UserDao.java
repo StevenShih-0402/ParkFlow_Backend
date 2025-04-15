@@ -8,6 +8,7 @@ import application_operation.ParkFlow.dto.users.UserLoginDto;
 import application_operation.ParkFlow.dto.users.UserQueryDto;
 import application_operation.ParkFlow.dto.users.UserUpdateDto;
 import application_operation.ParkFlow.entity.UserEntity;
+import application_operation.ParkFlow.enums.ErrorMessageEnum;
 import application_operation.ParkFlow.enums.ResponseCodeEnum;
 import application_operation.ParkFlow.exception.HandleException;
 import application_operation.ParkFlow.repository.RolesRepository;
@@ -53,7 +54,9 @@ public class UserDao {
 
     public UserQueryDto queryUser(Integer id){
         UserEntity userEntity =  usersRepository.findById(id)
-                .orElseThrow(() -> new HandleException(ResponseCodeEnum.DATABASE_ERROR.getResponseCode(), "資料庫內容錯誤：找不到對應的用戶。"));
+                .orElseThrow(() -> new HandleException(
+                        ResponseCodeEnum.DATABASE_ERROR.getResponseCode(),
+                        ErrorMessageEnum.NOT_FOUND_USER.getMessage()));
 
         UserQueryDto userQueryDto = new UserQueryDto();
 

@@ -1,6 +1,7 @@
 package application_operation.ParkFlow.service;
 
 import application_operation.ParkFlow.dao.users.UserDao;
+import application_operation.ParkFlow.enums.ErrorMessageEnum;
 import application_operation.ParkFlow.enums.ResponseCodeEnum;
 import application_operation.ParkFlow.exception.HandleException;
 import lombok.RequiredArgsConstructor;
@@ -18,21 +19,27 @@ public class ValidUtils {
     // 身分驗證 - User
     public void isUser(String roleName){
         if(!roleName.equals(userDao.findRoleName(1))) {
-            throw new HandleException(ResponseCodeEnum.AUTH_ERROR.getResponseCode(), "身分驗證錯誤：使用者沒有權限使用此功能。");
+            throw new HandleException(
+                    ResponseCodeEnum.AUTH_ERROR.getResponseCode(),
+                    ErrorMessageEnum.NOT_USER.getMessage());
         }
     }
 
     // 身分驗證 - FM
     public void isFM(String roleName){
         if(!roleName.equals(userDao.findRoleName(2))) {
-            throw new HandleException(ResponseCodeEnum.AUTH_ERROR.getResponseCode(), "身分驗證錯誤：使用者沒有權限使用此功能。");
+            throw new HandleException(
+                    ResponseCodeEnum.AUTH_ERROR.getResponseCode(),
+                    ErrorMessageEnum.NOT_FM.getMessage());
         }
     }
 
     // 日期是否在今天以後
     public void isBeforeDate(LocalDateTime startDate){
         if(startDate.isBefore(LocalDateTime.now())) {
-            throw new HandleException(ResponseCodeEnum.BUSINESS_ERROR.getResponseCode(), "業務邏輯錯誤：日期必須在今天以後。");
+            throw new HandleException(
+                    ResponseCodeEnum.BUSINESS_ERROR.getResponseCode(),
+                    ErrorMessageEnum.NOT_BEFORE_TODAY.getMessage());
         }
     }
 
