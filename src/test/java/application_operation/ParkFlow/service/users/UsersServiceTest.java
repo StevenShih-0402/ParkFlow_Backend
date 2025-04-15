@@ -6,6 +6,7 @@ import application_operation.ParkFlow.dao.users.UserDao;
 import application_operation.ParkFlow.entity.UserEntity;
 import application_operation.ParkFlow.enums.ResponseCodeEnum;
 import application_operation.ParkFlow.exception.HandleException;
+import application_operation.ParkFlow.exception.JwtTokenException;
 import application_operation.ParkFlow.jwtToken.JwtUtil;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -61,9 +62,6 @@ public class UsersServiceTest {
         // 模擬 UserDao.saveUser() 執行後回傳結果的情境。
         when(userDao.saveUser(any())).thenReturn(userEntity);
 
-        // 模擬用 roleId 查詢 roleName 的情境
-        when(userDao.findRoleName(any())).thenReturn("ROLE_NAME");
-
         // 模擬生成 Jwt 的情境
         when(jwtUtil.generateToken(any(), any())).thenReturn("mock-jwt-string");
 
@@ -73,6 +71,11 @@ public class UsersServiceTest {
         String token = usersService.create(userCreateRq);
 
         // 3. 驗證階段 (Assert)
+        // 驗證 create() 的三個方法都有被執行
+        verify(userDao).existEmail(any());
+        verify(userDao).saveUser(any());
+        verify(jwtUtil).generateToken(any(), any());
+
         // 驗證 token 不是 Null
         assertNotNull(token);
     }
@@ -98,6 +101,11 @@ public class UsersServiceTest {
                 HandleException.class,
                 () -> usersService.create(userCreateRq)
         );
+
+        // 驗證只有信箱檢驗方法被執行，新增資料和建立 Token 未執行
+        verify(userDao).existEmail(any());
+        verify(userDao, never()).saveUser(any());
+        verify(jwtUtil, never()).generateToken(any(), any());
 
         // 驗證 ErrorMessage 的 code 是 9002
         assertEquals(ResponseCodeEnum.BUSINESS_ERROR.getResponseCode(), ex.getCode());
@@ -137,6 +145,11 @@ public class UsersServiceTest {
         // 執行 UsersService.login()。
         String token = usersService.login(userLoginRq);
 
+        // 驗證 login() 的三個方法都執行過
+        verify(userDao).existEmail(any());
+        verify(userDao).queryUserByEmail(any());
+        verify(jwtUtil).generateToken(any(), any());
+
         // 驗證 token 不是 Null
         assertNotNull(token);
     }
@@ -158,10 +171,62 @@ public class UsersServiceTest {
                 () -> usersService.login(userLoginRq)
         );
 
+        // 驗證只有信箱檢驗方法被執行，查詢資料和建立 Token 未執行
+        verify(userDao).existEmail(any());
+        verify(userDao, never()).queryUserByEmail(any());
+        verify(jwtUtil, never()).generateToken(any(), any());
+
         // 驗證 ErrorMessage 的 code 是 0001
         assertEquals(ResponseCodeEnum.REGISTER_REQ.getResponseCode(), ex.getCode());
 
         // 驗證錯誤訊息的內容
         assertEquals("身分驗證錯誤：請先註冊後再登入系統。", ex.getMessage());
+    }
+
+    @Test
+    @DisplayName("UsersService.logout()_success")
+    public void logout_success() {
+
+        // 模擬 JWT 驗證成功的情境，這裡不會實際執行驗證動作
+        doNothing().when(jwtUtil).validateToken();
+
+        String token = "mock-jwt-string";
+        // 模擬從 Authorization 取出 Token
+        when(jwtUtil.extractTokenFromAuthHeader()).thenReturn(token);
+
+        // 模擬將 Jwt 存入黑名單的情境，這裡不會實際執行
+        doNothing().when(jwtUtil).blacklistToken(token);
+
+        // 執行 UsersService.logout()。
+        usersService.logout();
+
+        // 驗證 logout 的三個方法都有被執行過
+        verify(jwtUtil).validateToken();
+        verify(jwtUtil).extractTokenFromAuthHeader();
+        verify(jwtUtil).blacklistToken(token);
+    }
+
+
+    @Test
+    @DisplayName("UsersService.logout()_failed")
+    public void logout_failed() {
+        // 錯誤情境：Token 遺失或過期
+        // 模擬 JWT 驗證未通過的情境
+        String errorMessage = "身分驗證錯誤：Token 不存在或格式錯誤。";
+        doThrow(new JwtTokenException(errorMessage)).when(jwtUtil).validateToken();
+
+        // 執行 usersService.logout 驗證拋出的錯誤是否為 JwtTokenException，並保存成變數 ex
+        JwtTokenException ex = assertThrows(
+                JwtTokenException.class,
+                () -> usersService.logout()
+        );
+
+        // 驗證只有 validateToken() 有被執行過
+        verify(jwtUtil).validateToken();
+        verify(jwtUtil, never()).extractTokenFromAuthHeader();
+        verify(jwtUtil, never()).blacklistToken(any());
+
+        // 驗證錯誤訊息的內容
+        assertEquals(errorMessage, ex.getMessage());
     }
 }

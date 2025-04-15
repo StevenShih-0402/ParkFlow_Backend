@@ -11,8 +11,6 @@ import application_operation.ParkFlow.service.users.UsersService;
 import application_operation.ParkFlow.validTag.chinesename.ChineseName;
 import application_operation.ParkFlow.validTag.englishname.EnglishName;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,16 +18,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.MessageSource;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import io.jsonwebtoken.Jwts;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-
-import java.security.Key;
-import java.util.Date;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -58,9 +51,6 @@ public class UsersControllerTest {
     private static final String queryPath = "/v1/users/query";
     private static final String updatePath = "/v1/users/update";
 
-    private final Key secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-    private static final long EXPIRATION_TIME = 28800000; // 8 小時
-
     // 初始化 objectMapper 和 mockMvc，單獨測試 UserController，不啟動整個 Spring 容器，並手動引入自訂的 GlobalExceptionHandler
     @BeforeEach
     void setup() {
@@ -76,13 +66,7 @@ public class UsersControllerTest {
     public void create_success() throws Exception{
 
         // 模擬回傳的 JWT
-        String token = Jwts.builder()
-                        .claim("userId", 1)
-                        .claim("roleName", "USER")
-                        .setIssuedAt(new Date())
-                        .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
-                        .signWith(secretKey)
-                        .compact();
+        String token = "mock-jwt-string";
 
         // 輸入的資料
         UserCreateRq userCreateRq = new UserCreateRq();
@@ -129,13 +113,7 @@ public class UsersControllerTest {
     public void login_success() throws Exception{
 
         // 模擬登入後回傳的 JWT
-        String token = Jwts.builder()
-                .claim("userId", 1)
-                .claim("roleName", "USER")
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
-                .signWith(secretKey)
-                .compact();
+        String token = "mock-jwt-string";
 
         // 輸入的資料
         UserLoginRq userLoginRq = new UserLoginRq();
