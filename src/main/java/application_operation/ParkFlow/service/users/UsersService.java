@@ -7,6 +7,7 @@ import application_operation.ParkFlow.dao.users.UserDao;
 import application_operation.ParkFlow.dto.UsersBaseDto;
 import application_operation.ParkFlow.dto.users.*;
 import application_operation.ParkFlow.entity.UserEntity;
+import application_operation.ParkFlow.enums.ErrorMessageEnum;
 import application_operation.ParkFlow.enums.ResponseCodeEnum;
 import application_operation.ParkFlow.exception.HandleException;
 import application_operation.ParkFlow.jwtToken.JwtUtil;
@@ -29,7 +30,9 @@ public class UsersService {
 
         // 信箱是否已經註冊過
         if(userDao.existEmail(userCreateDto.getEmail())){
-            throw new HandleException(ResponseCodeEnum.BUSINESS_ERROR.getResponseCode(), "業務邏輯錯誤：信箱不能重複註冊。");
+            throw new HandleException(
+                    ResponseCodeEnum.BUSINESS_ERROR.getResponseCode(),
+                    ErrorMessageEnum.MAIL_ALREADY_REGISTER.getMessage());
         }
 
         return tokenTransfer(userDao.saveUser(userCreateDto));
@@ -43,7 +46,9 @@ public class UsersService {
 
         // Email 不存在的話，回傳 0001
         if(!userDao.existEmail(userLoginDto.getEmail())){
-            throw new HandleException(ResponseCodeEnum.REGISTER_REQ.getResponseCode(), "身分驗證錯誤：請先註冊後再登入系統。");
+            throw new HandleException(
+                    ResponseCodeEnum.REGISTER_REQ.getResponseCode(),
+                    ErrorMessageEnum.NEED_REGISTER.getMessage());
         }
 
         // 存在的話，用 Email 找出用戶資料並包裝成 Jwt

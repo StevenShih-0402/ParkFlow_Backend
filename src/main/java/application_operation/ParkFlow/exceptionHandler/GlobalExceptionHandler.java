@@ -1,6 +1,7 @@
 package application_operation.ParkFlow.exceptionHandler;
 
 import application_operation.ParkFlow.Response.ErrorResponse;
+import application_operation.ParkFlow.enums.ErrorMessageEnum;
 import application_operation.ParkFlow.enums.ParkingRequestEnum;
 import application_operation.ParkFlow.enums.ResponseCodeEnum;
 import application_operation.ParkFlow.exception.HandleException;
@@ -12,7 +13,6 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.format.DateTimeParseException;
 
@@ -61,17 +61,17 @@ public class GlobalExceptionHandler {
 
         Throwable rootCause = ex.getMostSpecificCause();
 
-        String errorMessage = "輸入格式錯誤：請檢查輸入的 Json 資料格式是否正確。";
+        String errorMessage = ErrorMessageEnum.JSON_PARSE_ERROR.getMessage();
 
         // 處理日期格式錯誤 (DateTimeParseException)
         if (rootCause instanceof DateTimeParseException) {
-            errorMessage = "輸入格式錯誤：請輸入有效的日期格式 (例如：2025-01-01T00:00:00)。";
+            errorMessage = ErrorMessageEnum.DATE_PARSE_ERROR.getMessage();
         }
 
         // 處理 Enum 轉換錯誤 (InvalidFormatException)
         if (rootCause instanceof InvalidFormatException invalidFormatException) {
             if (invalidFormatException.getTargetType().isEnum() && invalidFormatException.getTargetType().equals(ParkingRequestEnum.class)) {
-                errorMessage = "輸入格式錯誤：審核狀態請輸入 REJECTED、APPROVED 或 REVIEW。";
+                errorMessage = ErrorMessageEnum.REVIEW_STATUS_ERROR.getMessage();
             }
         }
 

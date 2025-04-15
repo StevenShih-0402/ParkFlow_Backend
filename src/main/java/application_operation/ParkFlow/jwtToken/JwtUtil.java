@@ -1,6 +1,7 @@
 package application_operation.ParkFlow.jwtToken;
 
 import application_operation.ParkFlow.dto.UsersBaseDto;
+import application_operation.ParkFlow.enums.ErrorMessageEnum;
 import application_operation.ParkFlow.exception.JwtTokenException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
@@ -51,7 +52,7 @@ public class JwtUtil {
 
         // Jwt 不存在或格式錯誤
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            throw new JwtTokenException("身分驗證錯誤：Token 不存在或格式錯誤。");
+            throw new JwtTokenException(ErrorMessageEnum.TOKEN_NOT_FOUND_OR_ERROR.getMessage());
         }
 
         return extractToken(authHeader);
@@ -63,7 +64,7 @@ public class JwtUtil {
             String token = extractTokenFromAuthHeader();
             // token 已經包含在黑名單
             if (blacklistedTokens.contains(token)) {
-                throw new JwtTokenException("身分驗證錯誤：不合法的 Token。");
+                throw new JwtTokenException(ErrorMessageEnum.TOKEN_ILLEGAL.getMessage());
             }
 
             Jwts.parserBuilder()
@@ -71,7 +72,7 @@ public class JwtUtil {
                     .build()
                     .parseClaimsJws(token);
         } catch (JwtException | IllegalArgumentException e) {
-            throw new JwtTokenException("身分驗證錯誤：不合法的 Token。");
+            throw new JwtTokenException(ErrorMessageEnum.TOKEN_ILLEGAL.getMessage());
         }
     }
 

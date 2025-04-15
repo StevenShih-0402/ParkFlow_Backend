@@ -4,6 +4,7 @@ import application_operation.ParkFlow.controller.users.payload.UserCreateRq;
 import application_operation.ParkFlow.controller.users.payload.UserLoginRq;
 import application_operation.ParkFlow.controller.users.payload.UserUpdateRq;
 import application_operation.ParkFlow.dto.users.UserQueryDto;
+import application_operation.ParkFlow.enums.ErrorMessageEnum;
 import application_operation.ParkFlow.enums.ResponseCodeEnum;
 import application_operation.ParkFlow.exception.JwtTokenException;
 import application_operation.ParkFlow.exceptionHandler.GlobalExceptionHandler;
@@ -18,11 +19,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+
+import java.util.Locale;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -38,6 +42,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class UsersControllerTest {
     private MockMvc mockMvc;
     private ObjectMapper objectMapper; // 將物件轉換成 Json 字串
+    private ResourceBundleMessageSource messageSource;
 
     @Mock
     private UsersService usersService;
@@ -59,6 +64,11 @@ public class UsersControllerTest {
                 .standaloneSetup(usersController)
                 .setControllerAdvice(new GlobalExceptionHandler())
                 .build();
+
+        // Spring 用來讀取 .properties 檔案的工具，透過 key 取得對應的訊息
+        messageSource = new ResourceBundleMessageSource();
+        messageSource.setBasename("ValidationMessages"); // 不需要 .properties 副檔名
+        messageSource.setDefaultEncoding("UTF-8");
     }
 
     @Test
@@ -129,6 +139,7 @@ public class UsersControllerTest {
     @Test
     @DisplayName("UsersController.login()_failed")
     public void login_failed() throws Exception{
+        String errorMessage = messageSource.getMessage("email.format", null, Locale.TAIWAN);  //(key, 要填入的內容 (若字串有 {0}, {1} 等佔位符), 地區語系)
 
         // 錯誤情境: 信箱格式錯誤
         UserLoginRq emailErrorRq = new UserLoginRq();
@@ -138,7 +149,7 @@ public class UsersControllerTest {
         assertInputErrorMessage(
                 post(loginPath),
                 emailErrorRq,
-                "輸入格式錯誤：必須是形式完整的電子郵件位址。"
+                errorMessage
         );
     }
 
@@ -162,7 +173,7 @@ public class UsersControllerTest {
     @Test
     @DisplayName("UsersController.logout()_failed")
     public void logout_failed() throws Exception{
-        String errorMessage = "身分驗證錯誤：Token 不存在或格式錯誤。";
+        String errorMessage = ErrorMessageEnum.TOKEN_NOT_FOUND_OR_ERROR.getMessage();
 
         // 模擬 usersService.logout() 裡發生例外
         doThrow(new JwtTokenException(errorMessage)).when(usersService).logout();
@@ -205,7 +216,7 @@ public class UsersControllerTest {
     @Test
     @DisplayName("UsersController.query()_failed")
     public void query_failed() throws Exception{
-        String errorMessage = "身分驗證錯誤：Token 不存在或格式錯誤。";
+        String errorMessage = ErrorMessageEnum.TOKEN_NOT_FOUND_OR_ERROR.getMessage();
 
         // 模擬 usersService.query() 裡發生例外
         doThrow(new JwtTokenException(errorMessage)).when(usersService).query();
