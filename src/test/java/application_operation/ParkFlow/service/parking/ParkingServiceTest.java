@@ -1,11 +1,14 @@
 package application_operation.ParkFlow.service.parking;
 
+import application_operation.ParkFlow.controller.parking.payload.ParkingQuotaCreateRq;
 import application_operation.ParkFlow.controller.parking.payload.ParkingRequestCreateRq;
 import application_operation.ParkFlow.controller.parking.payload.ParkingRequestUpdateRq;
 import application_operation.ParkFlow.dao.parking.ParkingDao;
 import application_operation.ParkFlow.dto.UsersBaseDto;
+import application_operation.ParkFlow.dto.parking.create.ParkingQuotaDto;
 import application_operation.ParkFlow.dto.parking.create.ParkingRequestDto;
 import application_operation.ParkFlow.dto.parking.update.UpdateParkingRequestDto;
+import application_operation.ParkFlow.entity.ParkingQuotaEntity;
 import application_operation.ParkFlow.entity.ParkingRequestEntity;
 import application_operation.ParkFlow.enums.ErrorMessageEnum;
 import application_operation.ParkFlow.enums.ParkingRequestEnum;
@@ -26,9 +29,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class ParkingServiceTest {
@@ -92,12 +95,12 @@ public class ParkingServiceTest {
 
         ParkingRequestDto parkingRequestDto = parkingService.create(parkingRequestCreateRq);
 
-        Assertions.assertNotNull(parkingRequestDto);
-        Assertions.assertEquals(startTime.format(formatter), parkingRequestDto.getStartDate().format(formatter));
-        Assertions.assertEquals(applicationTime.format(formatter), parkingRequestDto.getApplicationTime().format(formatter));
-        Assertions.assertEquals("0912345678", parkingRequestDto.getCellPhone());
-        Assertions.assertEquals("EAF-2200", parkingRequestDto.getCarNumber());
-        Assertions.assertEquals("TOYOTA", parkingRequestDto.getCarType());
+        assertNotNull(parkingRequestDto);
+        assertEquals(startTime.format(formatter), parkingRequestDto.getStartDate().format(formatter));
+        assertEquals(applicationTime.format(formatter), parkingRequestDto.getApplicationTime().format(formatter));
+        assertEquals("0912345678", parkingRequestDto.getCellPhone());
+        assertEquals("EAF-2200", parkingRequestDto.getCarNumber());
+        assertEquals("TOYOTA", parkingRequestDto.getCarType());
     }
 
     @Test
@@ -137,8 +140,8 @@ public class ParkingServiceTest {
         );
 
         // 驗證錯誤碼
-        Assertions.assertEquals(ResponseCodeEnum.BUSINESS_ERROR.getResponseCode(), exception.getCode());
-        Assertions.assertEquals(ErrorMessageEnum.NOT_SET_PARKING_QUOTA.getMessage(), exception.getMessage());
+        assertEquals(ResponseCodeEnum.BUSINESS_ERROR.getResponseCode(), exception.getCode());
+        assertEquals(ErrorMessageEnum.NOT_SET_PARKING_QUOTA.getMessage(), exception.getMessage());
     }
 
     @Test
@@ -182,10 +185,10 @@ public class ParkingServiceTest {
 
         UpdateParkingRequestDto updateParkingRequestDto = parkingService.update(parkingRequestUpdateRq);
 
-        Assertions.assertNotNull(updateParkingRequestDto);
-        Assertions.assertEquals(1, updateParkingRequestDto.getId());
-        Assertions.assertEquals(ParkingRequestEnum.APPROVED, updateParkingRequestDto.getStatus());
-        Assertions.assertEquals(10, updateParkingRequestDto.getParkingSlotNumber());
+        assertNotNull(updateParkingRequestDto);
+        assertEquals(1, updateParkingRequestDto.getId());
+        assertEquals(ParkingRequestEnum.APPROVED, updateParkingRequestDto.getStatus());
+        assertEquals(10, updateParkingRequestDto.getParkingSlotNumber());
     }
 
     @Test
@@ -216,7 +219,108 @@ public class ParkingServiceTest {
         );
 
         // 驗證錯誤碼
-        Assertions.assertEquals(ResponseCodeEnum.DATABASE_ERROR.getResponseCode(), exception.getCode());
-        Assertions.assertEquals(ErrorMessageEnum.NOT_FOUND_PARKING_REQ.getMessage(), exception.getMessage());
+        assertEquals(ResponseCodeEnum.DATABASE_ERROR.getResponseCode(), exception.getCode());
+        assertEquals(ErrorMessageEnum.NOT_FOUND_PARKING_REQ.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("ParkingService.createParkingQuota()_success")
+    public void createParkingQuota_success() {
+        // 建立 Rq
+        ParkingQuotaCreateRq parkingQuotaCreateRq = new ParkingQuotaCreateRq();
+        parkingQuotaCreateRq.setStartDate(LocalDateTime.parse("2025-01-01T00:00:00"));
+        parkingQuotaCreateRq.setTotalSlots(30);
+
+        // 建立用戶驗證資訊
+        UsersBaseDto usersBaseDto = new UsersBaseDto();
+        usersBaseDto.setUserId(1);
+        usersBaseDto.setRoleName("FM");
+
+        // 建立 DAO 回傳的資料
+        ParkingQuotaEntity parkingQuotaEntity = new ParkingQuotaEntity();
+        parkingQuotaEntity.setId(1);
+        parkingQuotaEntity.setStartDate(LocalDateTime.parse("2025-01-01T00:00:00"));
+        parkingQuotaEntity.setTotalSlots(30);
+
+        // 模擬 JWT 驗證通過的情境
+        doNothing().when(jwtUtil).validateToken();
+
+        // 模擬取得用戶驗證資訊的情境
+        when(jwtUtil.getUserBase()).thenReturn(usersBaseDto);
+
+        // 模擬權限為 FM 的情境
+        doNothing().when(validUtils).isFM(any());
+
+        // 模擬日期在今天之後的情境
+        doNothing().when(validUtils).isBeforeDate(any());
+
+        // 模擬日期沒有重複的情境
+        when(parkingDao.existsByStartDate(any())).thenReturn(false);
+
+        // 模擬 .saveParkingQuota() 執行後回傳 Entity 的情境
+        when(parkingDao.saveParkingQuota(any())).thenReturn(parkingQuotaEntity);
+
+        // 執行 .saveParkingQuota()
+        ParkingQuotaDto result = parkingService.createParkingQuota(parkingQuotaCreateRq);
+
+        // 驗證所有方法都有執行
+        verify(jwtUtil).validateToken();
+        verify(jwtUtil).getUserBase();
+        verify(validUtils).isFM(any());
+        verify(validUtils).isBeforeDate(any());
+        verify(parkingDao).existsByStartDate(any());
+        verify(parkingDao).saveParkingQuota(any());
+
+        // 驗證回傳的 DTO 符合預期
+        assertNotNull(result);
+        assertEquals(result.getTotalSlots(), parkingQuotaCreateRq.getTotalSlots());
+    }
+
+
+    @Test
+    @DisplayName("ParkingService.createParkingQuota()_failed")
+    public void createParkingQuota_failed() {
+        // 錯誤情境：輸入的日期在今天之前
+        // 建立 Rq
+        ParkingQuotaCreateRq parkingQuotaCreateRq = new ParkingQuotaCreateRq();
+        parkingQuotaCreateRq.setStartDate(LocalDateTime.parse("2023-01-01T00:00:00"));
+        parkingQuotaCreateRq.setTotalSlots(30);
+
+        // 建立用戶驗證資訊
+        UsersBaseDto usersBaseDto = new UsersBaseDto();
+        usersBaseDto.setUserId(1);
+        usersBaseDto.setRoleName("FM");
+
+        // 模擬 JWT 驗證通過的情境
+        doNothing().when(jwtUtil).validateToken();
+
+        // 模擬取得用戶驗證資訊的情境
+        when(jwtUtil.getUserBase()).thenReturn(usersBaseDto);
+
+        // 模擬權限為 FM 的情境
+        doNothing().when(validUtils).isFM(any());
+
+        // 模擬日期在今天之前的情境
+        doThrow(new HandleException(
+                ResponseCodeEnum.BUSINESS_ERROR.getResponseCode(),
+                ErrorMessageEnum.NOT_BEFORE_TODAY.getMessage())
+        ).when(validUtils).isBeforeDate(any());
+
+        // 執行 parkingService.createParkingQuota() 驗證拋出的錯誤是否為 HandleException，並保存成變數 ex
+        HandleException ex = assertThrows(
+                HandleException.class,
+                () -> parkingService.createParkingQuota(parkingQuotaCreateRq)
+        );
+
+        // 驗證該執行的方法都有執行
+        verify(jwtUtil).validateToken();
+        verify(jwtUtil).getUserBase();
+        verify(validUtils).isFM(any());
+        verify(validUtils).isBeforeDate(any());
+        verify(parkingDao, never()).existsByStartDate(any());
+        verify(parkingDao, never()).saveParkingQuota(any());
+
+        assertEquals(ResponseCodeEnum.BUSINESS_ERROR.getResponseCode(), ex.getCode());
+        assertEquals(ErrorMessageEnum.NOT_BEFORE_TODAY.getMessage(), ex.getMessage());
     }
 }

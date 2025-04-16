@@ -272,6 +272,7 @@ public class UsersServiceTest {
         verify(userDao).queryUser(any());
 
         // 驗證回傳的 DTO 是否符合預期
+        assertNotNull(result);
         assertEquals(result.getId(), userQueryDto.getId());
         assertEquals(result.getChineseName(), userQueryDto.getChineseName());
         assertEquals(result.getEnglishName(), userQueryDto.getEnglishName());
@@ -369,6 +370,7 @@ public class UsersServiceTest {
         verify(userDao).queryUser(any());
 
         // 驗證回傳的 DTO 是否符合預期
+        assertNotNull(result);
         assertEquals(result.getId(), userQueryDto.getId());
         assertEquals(result.getChineseName(), userQueryDto.getChineseName());
         assertEquals(result.getEnglishName(), userQueryDto.getEnglishName());
