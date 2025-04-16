@@ -4,15 +4,18 @@ import application_operation.ParkFlow.controller.parking.payload.ParkingQuotaCre
 import application_operation.ParkFlow.controller.parking.payload.ParkingQuotaUpdateRq;
 import application_operation.ParkFlow.controller.parking.payload.ParkingRequestCreateRq;
 import application_operation.ParkFlow.controller.parking.payload.ParkingRequestUpdateRq;
+import application_operation.ParkFlow.controller.parking.payload.QueryParkingRequestRq;
 import application_operation.ParkFlow.controller.parking.payload.QueryUserParkingRequestRq;
 import application_operation.ParkFlow.dao.parking.ParkingDao;
 import application_operation.ParkFlow.dao.users.UserDao;
 import application_operation.ParkFlow.dto.UsersBaseDto;
 import application_operation.ParkFlow.dto.parking.create.ParkingRequestDto;
+import application_operation.ParkFlow.dto.parking.queryParkingRequest.ReParkingRequestDto;
 import application_operation.ParkFlow.dto.parking.queryUserParkingRequest.QueryUserAndRoleDto;
 import application_operation.ParkFlow.dto.parking.queryUserParkingRequest.QueryUserParkingRequestDto;
 import application_operation.ParkFlow.dto.parking.queryUserParkingRequest.ReUserParkingRequestDto;
 import application_operation.ParkFlow.dto.parking.update.UpdateParkingRequestDto;
+import application_operation.ParkFlow.entity.ParkingQuotaEntity;
 import application_operation.ParkFlow.entity.ParkingRequestEntity;
 import application_operation.ParkFlow.enums.ErrorMessageEnum;
 import application_operation.ParkFlow.enums.ParkingRequestEnum;
@@ -294,7 +297,7 @@ public class ParkingServiceTest {
         when(jwtUtil.getUserBase()).thenReturn(
                 UsersBaseDto.builder()
                         .userId(1)
-                        .roleName("User")
+                        .roleName("FM")
                         .build()
         );
 
@@ -321,6 +324,107 @@ public class ParkingServiceTest {
         Assertions.assertEquals(ResponseCodeEnum.AUTH_ERROR.getResponseCode(), exception.getCode());
         Assertions.assertEquals(ErrorMessageEnum.NOT_USER.getMessage(), exception.getMessage());
     }
+
+    @Test
+    @DisplayName("ParkingService.queryFmParkingRequest()_success")
+    public void queryFmParkingRequest_success() {
+
+        // Jwt Token 驗證
+        doNothing().when(jwtUtil).validateToken();
+        //取得使用者資訊
+        when(jwtUtil.getUserBase()).thenReturn(UsersBaseDto.builder()
+                .userId(1)
+                .roleName("FM")
+                .build());
+
+        //取得使用者資訊
+        when(userDao.findUsersAndRoleById(any())).thenReturn(QueryUserAndRoleDto.builder()
+                .email("min@gmail.com")
+                .englishName("min")
+                .roleName("FM").build());
+
+        //驗證使用者權限
+        doNothing().when(validUtils).isFM(any());
+
+        String strToStartTime = "2025-04-06T00:00:00";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+        LocalDateTime startTime = LocalDateTime.parse(strToStartTime, formatter);
+
+        when(parkingDao.findParkingRequest(any())).thenReturn(List.of(
+                ReParkingRequestDto.parkingRequest.builder()
+                        .requestId(1)
+                        .requestTime(startTime)
+                        .name("小明")
+                        .carType("TOYOTA")
+                        .carNumber("EAF-2200")
+                        .cellphone("0912345678")
+                        .parkingSlotNumber(10)
+                        .status(ParkingRequestEnum.APPROVED.toString())
+                        .build()
+        ));
+
+        ParkingQuotaEntity parkingQuotaEntity = new ParkingQuotaEntity();
+        parkingQuotaEntity.setStartDate(startTime);
+        parkingQuotaEntity.setId(1);
+        parkingQuotaEntity.setTotalSlots(5);
+
+        when(parkingDao.findParkingQuotaByStartDate(any())).thenReturn(parkingQuotaEntity);
+
+        QueryParkingRequestRq queryParkingRequestRq = QueryParkingRequestRq.builder()
+                .startDate(startTime)
+                .build();
+
+        ReParkingRequestDto reUserParkingRequestDto = parkingService.queryFmParkingRequest(queryParkingRequestRq);
+
+        Assertions.assertNotNull(reUserParkingRequestDto);
+        Assertions.assertEquals(1, reUserParkingRequestDto.getParkingRequestList().get(0).getRequestId());
+        Assertions.assertEquals(startTime, reUserParkingRequestDto.getParkingRequestList().get(0).getRequestTime());
+        Assertions.assertEquals("小明", reUserParkingRequestDto.getParkingRequestList().get(0).getName());
+        Assertions.assertEquals("TOYOTA", reUserParkingRequestDto.getParkingRequestList().get(0).getCarType());
+        Assertions.assertEquals("EAF-2200", reUserParkingRequestDto.getParkingRequestList().get(0).getCarNumber());
+        Assertions.assertEquals("0912345678", reUserParkingRequestDto.getParkingRequestList().get(0).getCellphone());
+        Assertions.assertEquals(10, reUserParkingRequestDto.getParkingRequestList().get(0).getParkingSlotNumber());
+        Assertions.assertEquals(ParkingRequestEnum.APPROVED.toString(), reUserParkingRequestDto.getParkingRequestList().get(0).getStatus());
+        Assertions.assertEquals(5, reUserParkingRequestDto.getTotalSlots());
+        Assertions.assertEquals(1, reUserParkingRequestDto.getTotalSlotsId());
+    }
+
+    @Test
+    @DisplayName("ParkingService.queryFmParkingRequest()_failed")
+    public void queryFmParkingRequest_failed() {
+        doNothing().when(jwtUtil).validateToken();
+
+        when(jwtUtil.getUserBase()).thenReturn(
+                UsersBaseDto.builder()
+                        .userId(1)
+                        .roleName("USER")
+                        .build()
+        );
+
+        when(userDao.findUsersAndRoleById(any())).thenReturn(QueryUserAndRoleDto.builder()
+                .email("min@gmail.com")
+                .englishName("min")
+                .roleName("USER").build());
+
+        doThrow(new HandleException(ResponseCodeEnum.AUTH_ERROR.getResponseCode(),
+                ErrorMessageEnum.NOT_FM.getMessage())).when(validUtils).isFM(any());
+
+        String strToStartTime = "2025-04-06T00:00:00";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+        LocalDateTime startTime = LocalDateTime.parse(strToStartTime, formatter);
+
+        QueryParkingRequestRq queryParkingRequestRq = QueryParkingRequestRq.builder()
+                .startDate(startTime)
+                .build();
+
+        HandleException exception = Assertions.assertThrows(HandleException.class, () ->
+                parkingService.queryFmParkingRequest(queryParkingRequestRq)
+        );
+
+        Assertions.assertEquals(ResponseCodeEnum.AUTH_ERROR.getResponseCode(), exception.getCode());
+        Assertions.assertEquals(ErrorMessageEnum.NOT_FM.getMessage(), exception.getMessage());
+    }
+}
 
     @Test
     @DisplayName("ParkingService.updateParkingQuota()_success")

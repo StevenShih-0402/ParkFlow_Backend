@@ -1,5 +1,6 @@
 package application_operation.ParkFlow.dto.parking.queryParkingRequest;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,6 +25,7 @@ public class ReParkingRequestDto {
     @NoArgsConstructor
     public static class parkingRequest {
         private Integer requestId;
+        @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
         private LocalDateTime requestTime;
         private String name;
         private String carType;
