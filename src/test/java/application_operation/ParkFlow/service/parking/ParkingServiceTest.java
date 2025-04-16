@@ -1,6 +1,7 @@
 package application_operation.ParkFlow.service.parking;
 
 import application_operation.ParkFlow.controller.parking.payload.ParkingQuotaCreateRq;
+import application_operation.ParkFlow.controller.parking.payload.ParkingQuotaUpdateRq;
 import application_operation.ParkFlow.controller.parking.payload.ParkingRequestCreateRq;
 import application_operation.ParkFlow.controller.parking.payload.ParkingRequestUpdateRq;
 import application_operation.ParkFlow.dao.parking.ParkingDao;
@@ -133,7 +134,7 @@ public class ParkingServiceTest {
                 .carType("TOYOTA")
                 .build();
 
-        // 驗證是否有拋出 NaviException
+        // 驗證是否有拋出 Exception
         HandleException exception = Assertions.assertThrows(HandleException.class, () ->
                 // 執行Service測試
                 parkingService.create(parkingRequestCreateRq)
@@ -212,7 +213,7 @@ public class ParkingServiceTest {
                 .parkingSlotNumber(10)
                 .build();
 
-        // 驗證是否有拋出 NaviException
+        // 驗證是否有拋出 Exception
         HandleException exception = Assertions.assertThrows(HandleException.class, () ->
                 // 執行Service測試
                 parkingService.update(parkingRequestUpdateRq)
@@ -322,5 +323,123 @@ public class ParkingServiceTest {
 
         assertEquals(ResponseCodeEnum.BUSINESS_ERROR.getResponseCode(), ex.getCode());
         assertEquals(ErrorMessageEnum.NOT_BEFORE_TODAY.getMessage(), ex.getMessage());
+    }
+
+    @Test
+    @DisplayName("ParkingService.updateParkingQuota()_success")
+    public void updateParkingQuota_success() {
+        // 建立 Rq
+        ParkingQuotaUpdateRq parkingQuotaUpdateRq = new ParkingQuotaUpdateRq();
+        parkingQuotaUpdateRq.setId(1);
+        parkingQuotaUpdateRq.setTotalSlots(20);
+
+        // 建立用戶驗證資訊
+        UsersBaseDto usersBaseDto = new UsersBaseDto();
+        usersBaseDto.setUserId(1);
+        usersBaseDto.setRoleName("FM");
+
+        // 建立查詢車位數量資訊時回傳的 Entity
+        ParkingQuotaEntity parkingQuotaRecord = new ParkingQuotaEntity();
+        parkingQuotaRecord.setId(1);
+        parkingQuotaRecord.setStartDate(LocalDateTime.parse("2025-01-01T00:00:00"));
+        parkingQuotaRecord.setTotalSlots(30);
+
+        // 建立 DAO 回傳的資料
+        ParkingQuotaEntity parkingQuotaEntity = new ParkingQuotaEntity();
+        parkingQuotaEntity.setId(1);
+        parkingQuotaEntity.setStartDate(LocalDateTime.parse("2025-01-01T00:00:00"));
+        parkingQuotaEntity.setTotalSlots(20);
+
+        // 模擬 JWT 驗證通過的情境
+        doNothing().when(jwtUtil).validateToken();
+
+        // 模擬取得用戶驗證資訊的情境
+        when(jwtUtil.getUserBase()).thenReturn(usersBaseDto);
+
+        // 模擬權限為 FM 的情境
+        doNothing().when(validUtils).isFM(any());
+
+        // 模擬資料庫有對應資料的情境
+        when(parkingDao.existsByParkingQuotaId(any())).thenReturn(true);
+
+        // 模擬更新後剩餘車位不會小於 0 的情境，假設當週已有 5 個車位被預約
+        when(parkingDao.findParkingQuotaById(any())).thenReturn(parkingQuotaRecord);
+        when(parkingDao.getAllReservedSlots(any())).thenReturn(5);
+
+        // 模擬 .updateParkingQuota() 執行後回傳 Entity 的情境
+        when(parkingDao.updateParkingQuota(any())).thenReturn(parkingQuotaEntity);
+
+        // 執行 .updateParkingQuota()
+        ParkingQuotaDto result = parkingService.updateParkingQuota(parkingQuotaUpdateRq);
+
+        // 驗證所有方法都有執行
+        verify(jwtUtil).validateToken();
+        verify(jwtUtil).getUserBase();
+        verify(validUtils).isFM(any());
+        verify(parkingDao).existsByParkingQuotaId(any());
+        verify(parkingDao).findParkingQuotaById(any());
+        verify(parkingDao).getAllReservedSlots(any());
+        verify(parkingDao).updateParkingQuota(any());
+
+        // 驗證回傳的 DTO 符合預期
+        assertNotNull(result);
+        assertEquals(result.getId(), parkingQuotaUpdateRq.getId());
+        assertEquals(result.getTotalSlots(), parkingQuotaUpdateRq.getTotalSlots());
+    }
+
+
+    @Test
+    @DisplayName("ParkingService.updateParkingQuota()_failed")
+    public void updateParkingQuota_failed() {
+        // 錯誤情境：更新後剩餘車位會小於 0
+        // 建立 Rq
+        ParkingQuotaUpdateRq parkingQuotaUpdateRq = new ParkingQuotaUpdateRq();
+        parkingQuotaUpdateRq.setId(1);
+        parkingQuotaUpdateRq.setTotalSlots(3);
+
+        // 建立用戶驗證資訊
+        UsersBaseDto usersBaseDto = new UsersBaseDto();
+        usersBaseDto.setUserId(1);
+        usersBaseDto.setRoleName("FM");
+
+        // 建立查詢車位數量資訊時回傳的 Entity
+        ParkingQuotaEntity parkingQuotaRecord = new ParkingQuotaEntity();
+        parkingQuotaRecord.setId(1);
+        parkingQuotaRecord.setStartDate(LocalDateTime.parse("2025-01-01T00:00:00"));
+        parkingQuotaRecord.setTotalSlots(30);
+
+        // 模擬 JWT 驗證通過的情境
+        doNothing().when(jwtUtil).validateToken();
+
+        // 模擬取得用戶驗證資訊的情境
+        when(jwtUtil.getUserBase()).thenReturn(usersBaseDto);
+
+        // 模擬權限為 FM 的情境
+        doNothing().when(validUtils).isFM(any());
+
+        // 模擬資料庫有對應資料的情境
+        when(parkingDao.existsByParkingQuotaId(any())).thenReturn(true);
+
+        // 模擬更新後剩餘車位小於 0 的情境，假設當週已有 5 個車位被預約
+        when(parkingDao.findParkingQuotaById(any())).thenReturn(parkingQuotaRecord);
+        when(parkingDao.getAllReservedSlots(any())).thenReturn(5);
+
+        // 執行 parkingService.updateParkingQuota() 驗證拋出的錯誤是否為 HandleException，並保存成變數 ex
+        HandleException ex = assertThrows(
+                HandleException.class,
+                () -> parkingService.updateParkingQuota(parkingQuotaUpdateRq)
+        );
+
+        // 驗證該執行的方法都有執行
+        verify(jwtUtil).validateToken();
+        verify(jwtUtil).getUserBase();
+        verify(validUtils).isFM(any());
+        verify(parkingDao).existsByParkingQuotaId(any());
+        verify(parkingDao).findParkingQuotaById(any());
+        verify(parkingDao).getAllReservedSlots(any());
+        verify(parkingDao, never()).updateParkingQuota(any());
+
+        assertEquals(ResponseCodeEnum.BUSINESS_ERROR.getResponseCode(), ex.getCode());
+        assertEquals(ErrorMessageEnum.PARKING_QUOTA_LESS_THAN_ZERO.getMessage(), ex.getMessage());
     }
 }
