@@ -632,7 +632,7 @@ public class ParkingServiceTest {
         QueryParkingRequestRq queryParkingRequestRq = QueryParkingRequestRq.builder()
                 .startDate(startTime)
                 .build();
-
+      
         HandleException exception = assertThrows(HandleException.class, () ->
                 parkingService.queryFmParkingRequest(queryParkingRequestRq)
         );
