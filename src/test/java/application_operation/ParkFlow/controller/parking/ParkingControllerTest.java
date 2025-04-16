@@ -3,6 +3,7 @@ package application_operation.ParkFlow.controller.parking;
 import application_operation.ParkFlow.controller.parking.payload.*;
 import application_operation.ParkFlow.dto.parking.create.ParkingQuotaDto;
 import application_operation.ParkFlow.dto.parking.create.ParkingRequestDto;
+import application_operation.ParkFlow.dto.parking.queryUserParkingRequest.ReUserParkingRequestDto;
 import application_operation.ParkFlow.dto.parking.update.UpdateParkingRequestDto;
 import application_operation.ParkFlow.enums.ParkingRequestEnum;
 import application_operation.ParkFlow.enums.ResponseCodeEnum;
@@ -23,6 +24,9 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -279,5 +283,64 @@ public class ParkingControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(ResponseCodeEnum.INPUT_ERROR.getResponseCode()))
                 .andExpect(jsonPath("$.data").doesNotExist());
+    }
+
+
+    @Test
+    @DisplayName("ParkingController.queryUserParkingRequest()_success")
+    public void queryUserParkingRequest_success() throws Exception {
+
+        String strToStartTime = "2025-04-06T00:00:00";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+        LocalDateTime startTime = LocalDateTime.parse(strToStartTime, formatter);
+
+        when(parkingService.queryUserParkingRequest(any())).thenReturn(ReUserParkingRequestDto.builder()
+                .parkingRequestList(List.of(ReUserParkingRequestDto.parkingRequest.builder()
+                        .requestTime(startTime)
+                        .name("小明")
+                        .carType("TOYOTA")
+                        .carNumber("EAF-2200")
+                        .cellphone("0912345678")
+                        .parkingSlotNumber(10)
+                        .status(ParkingRequestEnum.APPROVED.toString())
+                        .build()))
+                .remainingQuantity(10)
+                .build());
+
+        QueryUserParkingRequestRq queryUserParkingRequestRq = QueryUserParkingRequestRq.builder()
+                .startDate(startTime)
+                .build();
+
+        mockMvc.perform(post(queryUserParkingRequest)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("utf-8")
+                        .content(objectMapper.writeValueAsString(queryUserParkingRequestRq)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(ResponseCodeEnum.SUCCESS.getResponseCode()))
+                .andExpect(jsonPath("$.data").exists())
+                .andExpect(jsonPath("$.data.parkingRequestList[0].requestTime").value(startTime.format(formatter)))
+                .andExpect(jsonPath("$.data.parkingRequestList[0].name").value("小明"))
+                .andExpect(jsonPath("$.data.parkingRequestList[0].carType").value("TOYOTA"))
+                .andExpect(jsonPath("$.data.parkingRequestList[0].carNumber").value("EAF-2200"))
+                .andExpect(jsonPath("$.data.parkingRequestList[0].cellphone").value("0912345678"))
+                .andExpect(jsonPath("$.data.parkingRequestList[0].parkingSlotNumber").value(10))
+                .andExpect(jsonPath("$.data.parkingRequestList[0].status").value(ParkingRequestEnum.APPROVED.toString()));
+    }
+
+    @Test
+    @DisplayName("ParkingController.queryUserParkingRequest()_failed")
+    public void queryUserParkingRequest_failed() throws Exception {
+        QueryUserParkingRequestRq queryUserParkingRequestRq = QueryUserParkingRequestRq.builder()
+                .build();
+
+        mockMvc.perform(post(queryUserParkingRequest)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("utf-8")
+                        .content(objectMapper.writeValueAsString(queryUserParkingRequestRq)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(ResponseCodeEnum.INPUT_ERROR.getResponseCode()))
+                .andExpect(jsonPath("$.message").value(ResourceBundle.getBundle("ValidationMessages", Locale.TAIWAN).getString("startDate.notnull")));
     }
 }
