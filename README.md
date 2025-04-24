@@ -106,3 +106,11 @@
 ```
 
 🔐 預設埠號為 `8080`，如需調整請修改 `application.properties` 設定。
+
+---
+
+## 📂 單元測試
+
+合計 44 支，在每支 API 的 Controller 與 Service 撰寫一正一負之測試。
+
+![image](https://github.com/user-attachments/assets/648b1161-cd02-40cc-87c2-c71a4c346d8c)
